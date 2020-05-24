@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -33,7 +35,6 @@ public class Imagenes {
                 FileOutputStream out = new FileOutputStream(new File(fileLocation));  
                 int read = 0;  
                 byte[] bytes = new byte[1024];  
-                out = new FileOutputStream(new File(fileLocation));  
                 while ((read = uploadedInputStream.read(bytes)) != -1) {  
                     out.write(bytes, 0, read);  
                 }  
@@ -43,7 +44,24 @@ public class Imagenes {
             	e.printStackTrace();
             }  
             
-            String output = "File successfully uploaded";  
-            return Response.status(200).entity(output).build();  
+            return Response.ok("File successfully uploaded").build();
 	}  	
+	
+	@GET
+	@Path("/download")
+	@Produces({"image/png", "image/jpeg", "image/jpg"})
+	public Response getFile() {
+		File file = new File(path);
+		
+		File[] archivos = file.listFiles();
+		
+		if(archivos == null || archivos.length == 0) {
+			return Response.ok("No hay imagenes subidas").build();
+		}else {
+			File archivo = archivos[0];
+			System.out.println(archivo.getName());
+	        return Response.ok(archivo).build();
+		}
+		
+	}
 }
