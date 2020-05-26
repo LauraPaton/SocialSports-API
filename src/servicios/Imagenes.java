@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,6 +14,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -44,23 +47,31 @@ public class Imagenes {
             	e.printStackTrace();
             }  
             
-            return Response.ok("File successfully uploaded").build();
+            return Response
+            		.status(Status.OK)
+            		.entity("Archivo subido correctamente")
+            		.build();
 	}  	
 	
 	@GET
 	@Path("/download")
 	@Produces({"image/png", "image/jpeg", "image/jpg"})
 	public Response getFile() {
-		File file = new File(path);
 		
+		File file = new File(path);
 		File[] archivos = file.listFiles();
 		
 		if(archivos == null || archivos.length == 0) {
-			return Response.ok("No hay imagenes subidas").build();
+			return Response
+					.status(Status.NOT_FOUND)
+					.entity("No hay imagenes subidas")
+					.build();
 		}else {
 			File archivo = archivos[0];
-			System.out.println(archivo.getName());
-	        return Response.ok(archivo).build();
+	        return Response
+	        			.status(Status.OK)
+	        			.entity(archivo)
+	        			.build();
 		}
 		
 	}

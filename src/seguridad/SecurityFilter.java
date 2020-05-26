@@ -41,14 +41,14 @@ public class SecurityFilter implements ContainerRequestFilter {
 
     private boolean isTokenBasedAuthentication(String authorizationHeader) {
         /* 
-         * La cabecera authorization no debe ser nula y debe tener el prefijo "Bearer" más un espacio en blanco 
-         * Además no distingue entre mayúsculas y minúsculas
+         * La cabecera authorization no debe ser nula y debe tener el prefijo "Bearer" mas un espacio en blanco 
+         * Ademas no distingue entre mayusculas y minusculas
          */
         return authorizationHeader != null && authorizationHeader.toLowerCase().startsWith(AUTHENTICATION_SCHEME.toLowerCase() + " ");
     }
 
     private void abortWithUnauthorized(ContainerRequestContext requestContext) {
-        requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("User cannot access the resource.").build());
+        requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("El usuario no puede acceder a ese recurso.").build());
     }
 }
 

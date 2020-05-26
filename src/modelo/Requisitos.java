@@ -4,6 +4,7 @@ public class Requisitos {
 	private int edadMinima, edadMaxima;
 	private String requisitoDeGenero;
 	private float reputacionNecesaria;
+	
 	public int getEdadMinima() {
 		return edadMinima;
 	}

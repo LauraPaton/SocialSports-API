@@ -1,5 +1,6 @@
 package modelo;
 
+import java.sql.Blob;
 import java.util.Date;
 import java.util.List;
 
@@ -8,18 +9,12 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Usuario {
 	
-	private long id;
-	private String nombre, contrasena, correo, genero, direccion, fotoPerfil;
+	private String nombre, contrasena, correo, genero, direccion;
+	private Blob fotoPerfil;
 	private Date fechaNacimiento, alta;
 	double reputacionParticipante, reputacionOrganizador;
 	private List<Usuario> listaAmigos, listaBloqueados;
 	
-	public long getId() {
-		return id;
-	}
-	public void setId(long id) {
-		this.id = id;
-	}
 	public String getNombre() {
 		return nombre;
 	}
@@ -50,10 +45,10 @@ public class Usuario {
 	public void setDireccion(String direccion) {
 		this.direccion = direccion;
 	}
-	public String getFotoPerfil() {
+	public Blob getFotoPerfil() {
 		return fotoPerfil;
 	}
-	public void setFotoPerfil(String fotoPerfil) {
+	public void setFotoPerfil(Blob fotoPerfil) {
 		this.fotoPerfil = fotoPerfil;
 	}
 	public Date getFechaNacimiento() {

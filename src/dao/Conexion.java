@@ -7,16 +7,16 @@ import java.sql.SQLException;
 public class Conexion {
 	
 	private Connection connection;
-	private final String NAME = "root";
-	private final String PASSWORD = "password";
+	private final String NAME = "socialsports";
+	private final String PASSWORD = "contraseña";
 	
 	public Conexion() throws ClassNotFoundException, SQLException {
 		setConnection();
 	}
 
 	public void setConnection() throws ClassNotFoundException, SQLException {
-		Class.forName("com.mysql.jdbc.Driver");
-		this.connection = (Connection) DriverManager.getConnection ("jdbc:mysql://localhost/socialsport", NAME, PASSWORD);
+		Class.forName("oracle.jdbc.driver.OracleDriver");
+		this.connection = (Connection) DriverManager.getConnection ("jdbc:oracle:thin:@localhost:1521:system", NAME, PASSWORD);
 	}
 	
 	public Connection getConnection() {

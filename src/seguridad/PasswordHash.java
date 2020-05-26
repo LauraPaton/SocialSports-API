@@ -15,7 +15,7 @@ public class PasswordHash {
 	
 	public PasswordHash(String contrasena) {
 		char[] passwordChars = contrasena.toCharArray();
-        byte[] saltBytes = "Cambiar".getBytes(); //cada usuario debería tener su propia sal aleatoria
+        byte[] saltBytes = "Cambiar".getBytes(); //cada usuario debe tener su propia sal aleatoria
         byte[] hashedBytes = hashPassword(passwordChars, saltBytes);
         this.hashedString = Hex.encodeHexString(hashedBytes);
 	}

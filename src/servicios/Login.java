@@ -6,6 +6,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
 import dao.UsuarioDAO;
 import modelo.Credenciales;
 import seguridad.JwtProvider;
@@ -26,9 +28,15 @@ public class Login {
 		if(usuarioDAO.usuarioValido(correo, contrasena)) {
 			JwtProvider jwt = new JwtProvider();
 			String token = jwt.generarToken(correo);
-			return Response.ok().header(HttpHeaders.AUTHORIZATION, "Bearer " + token).build();
+			
+			return Response
+					.status(Status.OK)
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+					.build();
 		}
 		
-		return Response.status(Response.Status.UNAUTHORIZED).build();
+		return Response
+				.status(Status.UNAUTHORIZED)
+				.build();
 	}
 }

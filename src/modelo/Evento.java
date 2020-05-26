@@ -8,23 +8,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Evento {
 
-	private String deporte, localidad, direccion;
-	private long idEvento, organizadorEvento;
+	private String idEvento, deporte, localidad, direccion, horaEvento;
+	private Usuario organizadorEvento;
 	private Date fechaEvento, fechaCreacion;
-	private String horaEvento;
 	private int maximoParticipantes;
-	private boolean instalacionesReservadas;
 	private float costeEvento, precioPorParticipante;
 	private String comentarios;
 	private Requisitos requisitos;
+	private boolean terminado, instalacionesReservadas;
 	ArrayList<Usuario> listaSolicitantes;
 	ArrayList<Usuario> listaDescartados;
 	ArrayList<Usuario> listaParticipantes;
 	
-	public long getIdEvento() {
+	public String getIdEvento() {
 		return idEvento;
 	}
-	public void setIdEvento(long idEvento) {
+	public void setIdEvento(String idEvento) {
 		this.idEvento = idEvento;
 	}
 	public String getDeporte() {
@@ -45,10 +44,16 @@ public class Evento {
 	public void setDireccion(String direccion) {
 		this.direccion = direccion;
 	}
-	public long getOrganizadorEvento() {
+	public String getHoraEvento() {
+		return horaEvento;
+	}
+	public void setHoraEvento(String horaEvento) {
+		this.horaEvento = horaEvento;
+	}
+	public Usuario getOrganizadorEvento() {
 		return organizadorEvento;
 	}
-	public void setOrganizadorEvento(long organizadorEvento) {
+	public void setOrganizadorEvento(Usuario organizadorEvento) {
 		this.organizadorEvento = organizadorEvento;
 	}
 	public Date getFechaEvento() {
@@ -62,12 +67,6 @@ public class Evento {
 	}
 	public void setFechaCreacion(Date fechaCreacion) {
 		this.fechaCreacion = fechaCreacion;
-	}
-	public String getHoraEvento() {
-		return horaEvento;
-	}
-	public void setHoraEvento(String horaEvento) {
-		this.horaEvento = horaEvento;
 	}
 	public int getMaximoParticipantes() {
 		return maximoParticipantes;
@@ -105,6 +104,12 @@ public class Evento {
 	public void setRequisitos(Requisitos requisitos) {
 		this.requisitos = requisitos;
 	}
+	public boolean isTerminado() {
+		return terminado;
+	}
+	public void setTerminado(boolean terminado) {
+		this.terminado = terminado;
+	}
 	public ArrayList<Usuario> getListaSolicitantes() {
 		return listaSolicitantes;
 	}
@@ -123,5 +128,5 @@ public class Evento {
 	public void setListaParticipantes(ArrayList<Usuario> listaParticipantes) {
 		this.listaParticipantes = listaParticipantes;
 	}
-	
+		
 }
