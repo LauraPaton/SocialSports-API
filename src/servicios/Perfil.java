@@ -1,16 +1,26 @@
 package servicios;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
+import dao.ImagenesDAO;
 import seguridad.Secured;
 
 import modelo.Evento;
@@ -22,7 +32,7 @@ public class Perfil {
 	@Path("/eventospendientes")
 	@Produces({MediaType.APPLICATION_JSON})
 	//@Secured
-	public Response eventosPendientes() {
+	public List<Evento> eventosPendientes() {
 		
 		Evento evento = null;
 		List<Evento> listaEventos = new ArrayList<>();
@@ -37,23 +47,20 @@ public class Perfil {
 			listaEventos.add(evento);
 		}
 		
-		return Response
-				.status(Status.OK)
-				.entity(listaEventos)
-				.build();
+		return listaEventos;
 	}
 	
 	@GET
 	@Path("/suscripcionespendientes")
 	@Secured
-	public Response suscripcionesPendientes() {
+	public List<Evento> suscripcionesPendientes() {
 		return null;
 	}
 	
 	@GET 
 	@Path("/eventosrealizados")
 	@Secured
-	public Response eventosRealizados() {
+	public List<Evento> eventosRealizados() {
 		return null;
 	}
 	
@@ -65,5 +72,43 @@ public class Perfil {
 	public Response datosUsuario() {
 		return null;
 	}
+	
+	@POST
+	@Path("/uploadimage")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)  
+    public Response uploadFile(  
+            @FormDataParam("file") InputStream uploadedInputStream,  
+            @FormDataParam("file") FormDataContentDisposition fileDetail) {
+		
+		Response.Status responseStatus = Status.UNAUTHORIZED;
+		
+		ImagenesDAO imagenesDAO = new ImagenesDAO();
+		boolean subida = imagenesDAO.uploadImage(uploadedInputStream);
+		
+		if(subida) responseStatus = Status.OK;
+		
+		return Response
+				.status(responseStatus)
+				.build();
 
+	}
+	
+	@GET
+	@Path("/downloadimage")
+	@Produces({"image/png", "image/jpeg", "image/jpg"})
+	public Response downloadFile() {
+		
+		ImagenesDAO imagenesDAO = new ImagenesDAO();
+		InputStream is = imagenesDAO.downloadImage();
+		
+		if(is != null) {
+			return Response
+					.status(Status.OK)
+					.entity(is)
+					.build();
+		}
+		
+		return Response.status(Status.UNAUTHORIZED).build();
+		
+	}
 }

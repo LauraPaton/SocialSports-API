@@ -2,6 +2,7 @@ package modelo;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -12,13 +13,11 @@ public class Evento {
 	private Usuario organizadorEvento;
 	private Date fechaEvento, fechaCreacion;
 	private int maximoParticipantes;
-	private float costeEvento, precioPorParticipante;
+	private float costeEvento;
 	private String comentarios;
 	private Requisitos requisitos;
 	private boolean terminado, instalacionesReservadas;
-	ArrayList<Usuario> listaSolicitantes;
-	ArrayList<Usuario> listaDescartados;
-	ArrayList<Usuario> listaParticipantes;
+	private List<Usuario> listaSolicitantes, listaDescartados, listaParticipantes;
 	
 	public String getIdEvento() {
 		return idEvento;
@@ -86,12 +85,6 @@ public class Evento {
 	public void setCosteEvento(float costeEvento) {
 		this.costeEvento = costeEvento;
 	}
-	public float getPrecioPorParticipante() {
-		return precioPorParticipante;
-	}
-	public void setPrecioPorParticipante(float precioPorParticipante) {
-		this.precioPorParticipante = precioPorParticipante;
-	}
 	public String getComentarios() {
 		return comentarios;
 	}
@@ -110,19 +103,19 @@ public class Evento {
 	public void setTerminado(boolean terminado) {
 		this.terminado = terminado;
 	}
-	public ArrayList<Usuario> getListaSolicitantes() {
+	public List<Usuario> getListaSolicitantes() {
 		return listaSolicitantes;
 	}
-	public void setListaSolicitantes(ArrayList<Usuario> listaSolicitantes) {
+	public void setListaSolicitantes(List<Usuario> listaSolicitantes) {
 		this.listaSolicitantes = listaSolicitantes;
 	}
-	public ArrayList<Usuario> getListaDescartados() {
+	public List<Usuario> getListaDescartados() {
 		return listaDescartados;
 	}
 	public void setListaDescartados(ArrayList<Usuario> listaDescartados) {
 		this.listaDescartados = listaDescartados;
 	}
-	public ArrayList<Usuario> getListaParticipantes() {
+	public List<Usuario> getListaParticipantes() {
 		return listaParticipantes;
 	}
 	public void setListaParticipantes(ArrayList<Usuario> listaParticipantes) {
