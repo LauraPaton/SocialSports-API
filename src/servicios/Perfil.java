@@ -1,9 +1,6 @@
 package servicios;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
-import java.sql.Blob;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,8 +28,8 @@ public class Perfil {
 	@GET
 	@Path("/eventospendientes")
 	@Produces({MediaType.APPLICATION_JSON})
-	//@Secured
-	public List<Evento> eventosPendientes() {
+	@Secured
+	public Response eventosPendientes() {
 		
 		Evento evento = null;
 		List<Evento> listaEventos = new ArrayList<>();
@@ -40,14 +37,16 @@ public class Perfil {
 		for(int i = 1; i <= 10; i++) {
 			evento = new Evento();
 			evento.setDeporte("Tenis" + String.valueOf(i));
-			evento.setFechaEvento(new Date());
-			evento.setCosteEvento(6);
-			evento.setComentarios("Comentario prueba" + String.valueOf(i));
+			evento.setLocalizacion("localizacion"+i);
+			evento.setHoraEvento("hora"+i);
 			
 			listaEventos.add(evento);
 		}
 		
-		return listaEventos;
+		return Response
+				.status(Status.OK)
+				.entity(listaEventos)
+				.build();
 	}
 	
 	@GET

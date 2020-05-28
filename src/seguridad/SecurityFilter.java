@@ -31,7 +31,7 @@ public class SecurityFilter implements ContainerRequestFilter {
         }
         // Extrae el token de la cabecera
         String token = authorizationHeader.substring(AUTHENTICATION_SCHEME.length()).trim();
-        
+
         JwtProvider jwtProvider = new JwtProvider();
         if(!jwtProvider.validateToken(token)) {
         	abortWithUnauthorized(requestContext);

@@ -1,125 +1,29 @@
 package modelo;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Evento {
 
-	private String idEvento, deporte, localidad, direccion, horaEvento;
-	private Usuario organizadorEvento;
-	private Date fechaEvento, fechaCreacion;
-	private int maximoParticipantes;
-	private float costeEvento;
-	private String comentarios;
-	private Requisitos requisitos;
-	private boolean terminado, instalacionesReservadas;
-	private List<Usuario> listaSolicitantes, listaDescartados, listaParticipantes;
-	
-	public String getIdEvento() {
-		return idEvento;
-	}
-	public void setIdEvento(String idEvento) {
-		this.idEvento = idEvento;
-	}
-	public String getDeporte() {
-		return deporte;
-	}
-	public void setDeporte(String deporte) {
-		this.deporte = deporte;
-	}
-	public String getLocalidad() {
-		return localidad;
-	}
-	public void setLocalidad(String localidad) {
-		this.localidad = localidad;
-	}
-	public String getDireccion() {
-		return direccion;
-	}
-	public void setDireccion(String direccion) {
-		this.direccion = direccion;
-	}
-	public String getHoraEvento() {
-		return horaEvento;
-	}
-	public void setHoraEvento(String horaEvento) {
-		this.horaEvento = horaEvento;
-	}
-	public Usuario getOrganizadorEvento() {
-		return organizadorEvento;
-	}
-	public void setOrganizadorEvento(Usuario organizadorEvento) {
-		this.organizadorEvento = organizadorEvento;
-	}
-	public Date getFechaEvento() {
-		return fechaEvento;
-	}
-	public void setFechaEvento(Date fechaEvento) {
-		this.fechaEvento = fechaEvento;
-	}
-	public Date getFechaCreacion() {
-		return fechaCreacion;
-	}
-	public void setFechaCreacion(Date fechaCreacion) {
-		this.fechaCreacion = fechaCreacion;
-	}
-	public int getMaximoParticipantes() {
-		return maximoParticipantes;
-	}
-	public void setMaximoParticipantes(int maximoParticipantes) {
-		this.maximoParticipantes = maximoParticipantes;
-	}
-	public boolean isInstalacionesReservadas() {
-		return instalacionesReservadas;
-	}
-	public void setInstalacionesReservadas(boolean instalacionesReservadas) {
-		this.instalacionesReservadas = instalacionesReservadas;
-	}
-	public float getCosteEvento() {
-		return costeEvento;
-	}
-	public void setCosteEvento(float costeEvento) {
-		this.costeEvento = costeEvento;
-	}
-	public String getComentarios() {
-		return comentarios;
-	}
-	public void setComentarios(String comentarios) {
-		this.comentarios = comentarios;
-	}
-	public Requisitos getRequisitos() {
-		return requisitos;
-	}
-	public void setRequisitos(Requisitos requisitos) {
-		this.requisitos = requisitos;
-	}
-	public boolean isTerminado() {
-		return terminado;
-	}
-	public void setTerminado(boolean terminado) {
-		this.terminado = terminado;
-	}
-	public List<Usuario> getListaSolicitantes() {
-		return listaSolicitantes;
-	}
-	public void setListaSolicitantes(List<Usuario> listaSolicitantes) {
-		this.listaSolicitantes = listaSolicitantes;
-	}
-	public List<Usuario> getListaDescartados() {
-		return listaDescartados;
-	}
-	public void setListaDescartados(ArrayList<Usuario> listaDescartados) {
-		this.listaDescartados = listaDescartados;
-	}
-	public List<Usuario> getListaParticipantes() {
-		return listaParticipantes;
-	}
-	public void setListaParticipantes(ArrayList<Usuario> listaParticipantes) {
-		this.listaParticipantes = listaParticipantes;
-	}
-		
+    private String deporte, localizacion, horaEvento;
+   
+    public String getDeporte() {
+        return deporte;
+    }
+    public void setDeporte(String deporte) {
+        this.deporte = deporte;
+    }
+    public String getLocalizacion() {
+        return localizacion;
+    }
+    public void setLocalizacion(String localizacion) {
+        this.localizacion = localizacion;
+    }
+    public String getHoraEvento() {
+        return horaEvento;
+    }
+    public void setHoraEvento(String horaEvento) {
+        this.horaEvento = horaEvento;
+    }
+
 }
