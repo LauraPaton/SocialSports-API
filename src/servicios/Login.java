@@ -14,7 +14,7 @@ import seguridad.JwtProvider;
 
 @Path("/login")
 public class Login { 
-	
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces({MediaType.APPLICATION_JSON})
@@ -25,7 +25,7 @@ public class Login {
 		
 		UsuarioDAO usuarioDAO = new UsuarioDAO();
 		
-		if(usuarioDAO.usuarioValido(correo, contrasena)) {
+		if(usuarioDAO.loginUsuario(correo, contrasena)) {
 			JwtProvider jwt = new JwtProvider();
 			String token = jwt.generarToken(correo);
 			

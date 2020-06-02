@@ -2,8 +2,9 @@ package servicios;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,6 +19,7 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import dao.ImagenesDAO;
+import dao.UsuarioDAO;
 import seguridad.Secured;
 
 import modelo.Evento;
@@ -30,23 +32,7 @@ public class Perfil {
 	@Produces({MediaType.APPLICATION_JSON})
 	@Secured
 	public Response eventosPendientes() {
-		
-		Evento evento = null;
-		List<Evento> listaEventos = new ArrayList<>();
-		
-		for(int i = 1; i <= 10; i++) {
-			evento = new Evento();
-			evento.setDeporte("Tenis" + String.valueOf(i));
-			evento.setLocalizacion("localizacion"+i);
-			evento.setHoraEvento("hora"+i);
-			
-			listaEventos.add(evento);
-		}
-		
-		return Response
-				.status(Status.OK)
-				.entity(listaEventos)
-				.build();
+		return null;
 	}
 	
 	@GET
@@ -66,10 +52,16 @@ public class Perfil {
 	
 	@GET 
 	@Path("/datosusuario")
-	@Secured
+	//@Secured
 	@Produces({MediaType.APPLICATION_JSON})
 	public Response datosUsuario() {
-		return null;
+		UsuarioDAO usuarioDAO = new UsuarioDAO();
+		List<String> listaCorreos = usuarioDAO.cogerCorreos();
+		
+		return Response
+				.status(Status.OK)
+				.entity(listaCorreos)
+				.build();
 	}
 	
 	@POST

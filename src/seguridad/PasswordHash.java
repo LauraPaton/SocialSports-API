@@ -1,7 +1,10 @@
 package seguridad;
 
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
+import java.util.Random;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -13,9 +16,9 @@ public class PasswordHash {
 	
 	private String hashedString;
 	
-	public PasswordHash(String contrasena) {
+	public void generatePassword(String contrasena, String salt) {
 		char[] passwordChars = contrasena.toCharArray();
-        byte[] saltBytes = "Cambiar".getBytes(); //cada usuario debe tener su propia sal aleatoria
+        byte[] saltBytes = salt.getBytes(); 
         byte[] hashedBytes = hashPassword(passwordChars, saltBytes);
         this.hashedString = Hex.encodeHexString(hashedBytes);
 	}
@@ -34,6 +37,13 @@ public class PasswordHash {
         } catch ( NoSuchAlgorithmException | InvalidKeySpecException e ) {
             throw new RuntimeException( e );
         }
+    }
+	
+	public String generateSalt() {
+		byte[] b = new byte[16];
+	    Random RANDOM = new SecureRandom();
+	    RANDOM.nextBytes(b);
+	    return new String(Base64.getEncoder().encode(b));
     }
 	
 	public String getHash() {
