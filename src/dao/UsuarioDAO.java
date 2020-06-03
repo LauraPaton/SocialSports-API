@@ -80,11 +80,12 @@ public class UsuarioDAO {
 				String salt = hash.generateSalt();
 				hash.generatePassword(contrasena, salt);
 		        String hashedString = hash.getHash();
-				String sql = "INSERT INTO TABLAUSUARIOS (EMAILUSUARIO, PASSWORDUSUARIO, USUARIOSALT, LISTAAMIGOS, LISTABLOQUEADOS) values(?,?,?, TLISTAPERSONAS(), TLISTAPERSONAS())";
+				String sql = "INSERT INTO TABLAUSUARIOS (EMAILUSUARIO, PASSWORDUSUARIO, USUARIOSALT, FECHAALTAUSUARIO, LISTAAMIGOS, LISTABLOQUEADOS) values(?,?,?,?, TLISTAPERSONAS(), TLISTAPERSONAS())";
 				PreparedStatement insert = conn.getConnection().prepareStatement(sql);
 				insert.setString(1, correo);
 				insert.setString(2, hashedString);
 				insert.setString(3, salt);
+				insert.setDate(4, new java.sql.Date(System.currentTimeMillis()));
 				
 				int affectedRows = insert.executeUpdate();
 				
