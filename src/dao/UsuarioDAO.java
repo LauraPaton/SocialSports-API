@@ -79,13 +79,11 @@ public class UsuarioDAO {
 				String salt = hash.generateSalt();
 				hash.generatePassword(contrasena, salt);
 		        String hashedString = hash.getHash();
-				String sql = "insert into tablausuarios(EMAILUSUARIO, PASSWORDUSUARIO, USUARIOSALT, USUARIO, LISTAAMIGOS, LISTABLOQUEADOS) values(?,?,?,Tpersona(?,null,null,null,null,null,sysdate, 0, 0, null, 0), tlistapersonas(), tlistapersonas())";
-				
+				String sql = "INSERT INTO TABLAUSUARIOS (EMAILUSUARIO, PASSWORDUSUARIO, USUARIOSALT, LISTAAMIGOS, LISTABLOQUEADOS) values(?,?,?, TLISTAPERSONAS(), TLISTAPERSONAS())";
 				PreparedStatement insert = conn.getConnection().prepareStatement(sql);
 				insert.setString(1, correo);
 				insert.setString(2, hashedString);
 				insert.setString(3, salt);
-				insert.setInt(4, generarId());
 				
 				int affectedRows = insert.executeUpdate();
 				
@@ -124,42 +122,6 @@ public class UsuarioDAO {
 		
 		return listaCorreos;
 		
-	}
-	
-	public int getId(String correo) {
-		
-		int id=0;
-		
-		try {
-			Conexion conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT T.USUARIO.ID_USUARIO FROM TABLAUSUARIOS T WHERE EMAILUSUARIO = ?");
-			ps.setString(1, correo);
-			ResultSet rs = ps.executeQuery();
-			if(rs.next()) {
-				id = rs.getInt(1);
-			}
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return id;
-	}
-	
-	private int generarId() {
-
-		int id=1;
-
-		try {
-			Conexion conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT T.USUARIO.ID_PERSONA FROM TABLAUSUARIOS T ORDER BY 1 DESC");
-			ResultSet rs = ps.executeQuery();
-			if(rs.next()) {
-				id = rs.getInt(1)+1;
-			}
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-
-		return id;
 	}
 	
 	private String getSalt(String correo) {

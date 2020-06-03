@@ -16,7 +16,7 @@ public class Registro {
 	
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response login(Usuario usuario) {
+	public Response registro(Usuario usuario) {
 		
 		UsuarioDAO usuarioDAO = new UsuarioDAO();
 		Validaciones validaciones = new Validaciones();
