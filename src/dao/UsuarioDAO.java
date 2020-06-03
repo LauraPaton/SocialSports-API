@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import modelo.Usuario;
 import seguridad.PasswordHash;
 import seguridad.Validaciones;
 
@@ -98,6 +99,41 @@ public class UsuarioDAO {
 		}
 		
 		return registrado;
+	}
+	
+	public Usuario cogerUsuario(String correo) {
+		Usuario usuario = new Usuario();
+		try {
+			Conexion conn = new Conexion();
+			String sql = "SELECT * FROM TABLAUSUARIOS WHERE EMAILUSUARIO = ?";
+			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
+			ps.setString(1, correo);
+			ResultSet rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				usuario.setEmailUsuario(rs.getNString("EMAILUSUARIO"));
+				usuario.setNombreUsuario(rs.getString("NOMBREUSUARIO"));
+				if(usuario.getNombreUsuario() == null) usuario.setNombreUsuario("");
+				usuario.setApellidosUsuario(rs.getString("APELLIDOSUSUARIO"));
+				usuario.setGeneroUsuario(rs.getString("GENEROUSUARIO"));
+				if(usuario.getGeneroUsuario() == null) usuario.setGeneroUsuario("");
+				usuario.setDireccionUsuario(rs.getString("DIRECCIONUSUARIO"));
+				usuario.setFechaNacimientoUsuario(rs.getDate("FECHANACIMIENTOUSUARIO"));
+				usuario.setFechaAltaUsuario(rs.getDate("FECHAALTAUSUARIO"));
+				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
+				usuario.setReputacionOrganizadorUsuario(rs.getFloat("REPUTACIONORGANIZADORUSUARIO"));
+				//imagen
+			}
+			
+			rs.close();
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return usuario;
 	}
 	
 	public ArrayList<String> cogerCorreos(){

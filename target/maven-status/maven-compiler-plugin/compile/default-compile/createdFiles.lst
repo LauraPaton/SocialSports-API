@@ -6,13 +6,14 @@ modelo\Evento.class
 servicios\Eventos.class
 servicios\Login.class
 servicios\Perfil.class
+modelo\PuntuacionEvento.class
 seguridad\Secured.class
 servicios\Registro.class
+modelo\PuntuacionParticipante.class
 dao\EventoDAO.class
 servicios\Imagenes.class
 modelo\Requisitos.class
 dao\Conexion.class
 dao\UsuarioDAO.class
-modelo\Credenciales.class
 modelo\Usuario.class
 seguridad\PasswordHash.class

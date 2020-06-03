@@ -1,91 +1,137 @@
 package modelo;
 
-import java.sql.Blob;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Usuario {
 	
-	private String nombre, contrasena, correo, genero, direccion;
-	private Blob fotoPerfil;
-	private Date fechaNacimiento, alta;
-	double reputacionParticipante, reputacionOrganizador;
-	private List<Usuario> listaAmigos, listaBloqueados;
-	
-	public String getNombre() {
-		return nombre;
-	}
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-	public String getContrasena() {
-		return contrasena;
-	}
-	public void setContrasena(String contrasena) {
-		this.contrasena = contrasena;
-	}
-	public String getCorreo() {
-		return correo;
-	}
-	public void setCorreo(String correo) {
-		this.correo = correo;
-	}
-	public String getGenero() {
-		return genero;
-	}
-	public void setGenero(String genero) {
-		this.genero = genero;
-	}
-	public String getDireccion() {
-		return direccion;
-	}
-	public void setDireccion(String direccion) {
-		this.direccion = direccion;
-	}
-	public Blob getFotoPerfil() {
-		return fotoPerfil;
-	}
-	public void setFotoPerfil(Blob fotoPerfil) {
-		this.fotoPerfil = fotoPerfil;
-	}
-	public Date getFechaNacimiento() {
-		return fechaNacimiento;
-	}
-	public void setFechaNacimiento(Date fechaNacimiento) {
-		this.fechaNacimiento = fechaNacimiento;
-	}
-	public Date getAlta() {
-		return alta;
-	}
-	public void setAlta(Date alta) {
-		this.alta = alta;
-	}
-	public double getReputacionParticipante() {
-		return reputacionParticipante;
-	}
-	public void setReputacionParticipante(double reputacionParticipante) {
-		this.reputacionParticipante = reputacionParticipante;
-	}
-	public double getReputacionOrganizador() {
-		return reputacionOrganizador;
-	}
-	public void setReputacionOrganizador(double reputacionOrganizador) {
-		this.reputacionOrganizador = reputacionOrganizador;
-	}
-	public List<Usuario> getListaAmigos() {
-		return listaAmigos;
-	}
-	public void setListaAmigos(List<Usuario> listaAmigos) {
-		this.listaAmigos = listaAmigos;
-	}
-	public List<Usuario> getListaBloqueados() {
-		return listaBloqueados;
-	}
-	public void setListaBloqueados(List<Usuario> listaBloqueados) {
-		this.listaBloqueados = listaBloqueados;
-	}
-	
+	private String emailUsuario;       
+    private String paswordUsuario;     
+    private String nombreUsuario;       
+    private String apellidosUsuario;
+    private String generoUsuario;       
+    private String direccionUsuario; 
+    private Date fechaNacimientoUsuario;
+    private Date fechaAltaUsuario;
+    private float reputacionParticipanteUsuario;
+    private float reputacionOrganizadorUsuario;
+    private String fotoPerfilUsuario;              
+    private boolean isOnlineNow;
+    private ArrayList<Usuario> listaAmigos;
+    private ArrayList<Usuario> listaBloqueados;
+
+    public String getEmailUsuario() {
+        return emailUsuario;
+    }
+
+    public void setEmailUsuario(String emailUsuario) {
+        this.emailUsuario = emailUsuario;
+    }
+
+    public String getPaswordUsuario() {
+        return paswordUsuario;
+    }
+
+    public void setPaswordUsuario(String paswordUsuario) {
+        this.paswordUsuario = paswordUsuario;
+    }
+
+    public String getNombreUsuario() {
+        return nombreUsuario;
+    }
+
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
+    }
+
+    public String getApellidosUsuario() {
+        return apellidosUsuario;
+    }
+
+    public void setApellidosUsuario(String apellidosUsuario) {
+        this.apellidosUsuario = apellidosUsuario;
+    }
+
+    public String getGeneroUsuario() {
+        return generoUsuario;
+    }
+
+    public void setGeneroUsuario(String generoUsuario) {
+        this.generoUsuario = generoUsuario;
+    }
+
+    public String getDireccionUsuario() {
+        return direccionUsuario;
+    }
+
+    public void setDireccionUsuario(String direccionUsuario) {
+        this.direccionUsuario = direccionUsuario;
+    }
+
+    public Date getFechaNacimientoUsuario() {
+        return fechaNacimientoUsuario;
+    }
+
+    public void setFechaNacimientoUsuario(Date fechaNacimientoUsuario) {
+        this.fechaNacimientoUsuario = fechaNacimientoUsuario;
+    }
+
+    public Date getFechaAltaUsuario() {
+        return fechaAltaUsuario;
+    }
+
+    public void setFechaAltaUsuario(Date fechaAltaUsuario) {
+        this.fechaAltaUsuario = fechaAltaUsuario;
+    }
+
+    public float getReputacionParticipanteUsuario() {
+        return reputacionParticipanteUsuario;
+    }
+
+    public void setReputacionParticipanteUsuario(float reputacionParticipanteUsuario) {
+        this.reputacionParticipanteUsuario = reputacionParticipanteUsuario;
+    }
+
+    public float getReputacionOrganizadorUsuario() {
+        return reputacionOrganizadorUsuario;
+    }
+
+    public void setReputacionOrganizadorUsuario(float reputacionOrganizadorUsuario) {
+        this.reputacionOrganizadorUsuario = reputacionOrganizadorUsuario;
+    }
+
+    public String getFotoPerfilUsuario() {
+        return fotoPerfilUsuario;
+    }
+
+    public void setFotoPerfilUsuario(String fotoPerfilUsuario) {
+        this.fotoPerfilUsuario = fotoPerfilUsuario;
+    }
+
+    public boolean isOnlineNow() {
+        return isOnlineNow;
+    }
+
+    public void setOnlineNow(boolean onlineNow) {
+        isOnlineNow = onlineNow;
+    }
+
+    public ArrayList<Usuario> getListaAmigos() {
+        return listaAmigos;
+    }
+
+    public void setListaAmigos(ArrayList<Usuario> listaAmigos) {
+        this.listaAmigos = listaAmigos;
+    }
+
+    public ArrayList<Usuario> getListaBloqueados() {
+        return listaBloqueados;
+    }
+
+    public void setListaBloqueados(ArrayList<Usuario> listaBloqueados) {
+        this.listaBloqueados = listaBloqueados;
+    }
 }

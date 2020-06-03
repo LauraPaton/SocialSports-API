@@ -4,54 +4,28 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @XmlRootElement
 public class Evento{
 
-    private String idEvento;    
+	private String idEvento;    
     private Usuario organizadorEvento;
-    private String deporte;     
+    private String deporte;    
     private String localidad;  
-    private String direccion;   
+    private String direccion;
     private Date fechaEvento;
-    private String horaEvento;          
+    private String horaEvento;         
     private Date fechaCreacionEvento;
     private int maximoParticipantes;
     private boolean instalacionesReservadas;
     private float costeEvento;
     private float precioPorParticipante;
-    private String comentarios;            
+    private String comentarios;          
     private Requisitos requisitos;
     private boolean terminado;
-    private List<Usuario> listaSolicitantes;
-    private List<Usuario> listaDescartados;
-    private List<Usuario> listaParticipantes;
-
-    public Evento() {
-    	
-    }
-    
-    public Evento(String idEvento, Usuario organizadorEvento, String deporte, String localidad, String direccion, Date fechaEvento, String horaEvento, Date fechaCreacionEvento, int maximoParticipantes, boolean instalacionesReservadas, float costeEvento, float precioPorParticipante, String comentarios, Requisitos requisitos, boolean terminado, ArrayList<Usuario> listaSolicitantes, ArrayList<Usuario> listaDescartados, ArrayList<Usuario> listaParticipantes) {
-        this.idEvento = idEvento;
-        this.organizadorEvento = organizadorEvento;
-        this.deporte = deporte;
-        this.localidad = localidad;
-        this.direccion = direccion;
-        this.fechaEvento = fechaEvento;
-        this.horaEvento = horaEvento;
-        this.fechaCreacionEvento = fechaCreacionEvento;
-        this.maximoParticipantes = maximoParticipantes;
-        this.instalacionesReservadas = instalacionesReservadas;
-        this.costeEvento = costeEvento;
-        this.precioPorParticipante = precioPorParticipante;
-        this.comentarios = comentarios;
-        this.requisitos = requisitos;
-        this.terminado = terminado;
-        this.listaSolicitantes = listaSolicitantes;
-        this.listaDescartados = listaDescartados;
-        this.listaParticipantes = listaParticipantes;
-    }
+    private ArrayList<Usuario> listaSolicitantes;
+    private ArrayList<Usuario> listaDescartados;
+    private ArrayList<Usuario> listaParticipantes;
 
     public String getIdEvento() {
         return idEvento;
@@ -125,7 +99,7 @@ public class Evento{
         this.maximoParticipantes = maximoParticipantes;
     }
 
-    public boolean getInstalacionesReservadas() {
+    public boolean isInstalacionesReservadas() {
         return instalacionesReservadas;
     }
 
@@ -165,7 +139,7 @@ public class Evento{
         this.requisitos = requisitos;
     }
 
-    public boolean getTerminado() {
+    public boolean isTerminado() {
         return terminado;
     }
 
@@ -173,15 +147,15 @@ public class Evento{
         this.terminado = terminado;
     }
 
-    public List<Usuario> getListaSolicitantes() {
+    public ArrayList<Usuario> getListaSolicitantes() {
         return listaSolicitantes;
     }
 
-    public void setListaSolicitantes(List<Usuario> listaSolicitantes) {
+    public void setListaSolicitantes(ArrayList<Usuario> listaSolicitantes) {
         this.listaSolicitantes = listaSolicitantes;
     }
 
-    public List<Usuario> getListaDescartados() {
+    public ArrayList<Usuario> getListaDescartados() {
         return listaDescartados;
     }
 
@@ -189,11 +163,11 @@ public class Evento{
         this.listaDescartados = listaDescartados;
     }
 
-    public List<Usuario> getListaParticipantes() {
+    public ArrayList<Usuario> getListaParticipantes() {
         return listaParticipantes;
     }
 
-    public void setListaParticipantes(List<Usuario> listaParticipantes) {
+    public void setListaParticipantes(ArrayList<Usuario> listaParticipantes) {
         this.listaParticipantes = listaParticipantes;
     }
 }
