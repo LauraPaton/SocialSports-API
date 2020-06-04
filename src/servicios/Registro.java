@@ -23,9 +23,10 @@ public class Registro {
 		
 		System.out.println(emailUsuario + ", " + passwordUsuario);
 		
-		Response.Status responseStatus = Response.Status.UNAUTHORIZED;
+		Response.Status responseStatus = Response.Status.OK;
 
 		if(validaciones.validarCorreo(emailUsuario) && validaciones.validarContrasena(passwordUsuario)) {
+			
 			if(usuarioDAO.registroUsuario(emailUsuario, passwordUsuario)) {
 				responseStatus = Response.Status.CREATED;
 			}else if(usuarioDAO.existeCorreo(emailUsuario)){
