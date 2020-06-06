@@ -74,7 +74,7 @@ public class Perfil {
 		if(actualizado) {
 			return Response.status(Status.OK).entity(apellidos).build(); 
 		}else {
-			return Response.status(Status.CONFLICT).entity("El nombre no ha podido actualizarse").build();
+			return Response.status(Status.CONFLICT).entity("El apellido no ha podido actualizarse").build();
 		}
 		
 	}
@@ -90,7 +90,7 @@ public class Perfil {
 		if(actualizado) {
 			return Response.status(Status.OK).entity(direccion).build(); 
 		}else {
-			return Response.status(Status.CONFLICT).entity("El nombre no ha podido actualizarse").build();
+			return Response.status(Status.CONFLICT).entity("La dirección no ha podido actualizarse").build();
 		}
 		
 	}
@@ -106,26 +106,26 @@ public class Perfil {
 		if(actualizado) {
 			return Response.status(Status.OK).entity(genero).build(); 
 		}else {
-			return Response.status(Status.CONFLICT).entity("El nombre no ha podido actualizarse").build();
+			return Response.status(Status.CONFLICT).entity("El género no ha podido actualizarse").build();
 		}
 		
 	}
 	
 	@DELETE
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("/borrarusuario")
-	public Response borrarUsuario(Usuario usuario) {
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("/borrarusuario/{correo}")
+	public Response borrarUsuario(@PathParam("correo") String correo) {
 		
-		System.out.println(usuario.getEmailUsuario());
+		System.out.println(correo);
 		
 		usuarioDAO = new UsuarioDAO();
 		
-		boolean borrado = usuarioDAO.borrarUsuario(usuario.getEmailUsuario());
+		boolean borrado = usuarioDAO.borrarUsuario(correo);
 		if(borrado) {
 			return Response.status(Status.NO_CONTENT).build(); 
 			//204 - La petición se ha completado con éxito pero su respuesta no tiene ningún contenido
 		}else {
-			return Response.status(Status.CONFLICT).entity("El nombre no ha podido actualizarse").build();
+			return Response.status(Status.CONFLICT).entity("El usuario no ha sido borrado").build();
 			//409 - Esta respuesta puede ser enviada cuando una petición tiene conflicto con el estado actual del servidor.
 		}
 		

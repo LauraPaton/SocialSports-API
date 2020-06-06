@@ -235,13 +235,11 @@ public class UsuarioDAO {
 			if(rs.next()) {
 				usuario.setEmailUsuario(rs.getNString("EMAILUSUARIO"));
 				usuario.setNombreUsuario(rs.getString("NOMBREUSUARIO"));
-				if(usuario.getNombreUsuario() == null) usuario.setNombreUsuario("");
 				usuario.setApellidosUsuario(rs.getString("APELLIDOSUSUARIO"));
 				usuario.setGeneroUsuario(rs.getString("GENEROUSUARIO"));
-				if(usuario.getGeneroUsuario() == null) usuario.setGeneroUsuario("");
 				usuario.setDireccionUsuario(rs.getString("DIRECCIONUSUARIO"));
 				usuario.setFechaNacimientoUsuario(rs.getDate("FECHANACIMIENTOUSUARIO"));
-				usuario.setFechaAltaUsuario(rs.getDate("FECHAALTAUSUARIO"));
+				//usuario.setFechaAltaUsuario(rs.getDate("FECHAALTAUSUARIO"));
 				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
 				usuario.setReputacionOrganizadorUsuario(rs.getFloat("REPUTACIONORGANIZADORUSUARIO"));
 				//imagen
