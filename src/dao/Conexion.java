@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class Conexion {
 	
 	private Connection connection;
-	private final String NAME = "socialsports";
+	private final String NAME = "dam2";
 	private final String PASSWORD = "contraseña";
 	
 	public Conexion() throws ClassNotFoundException, SQLException {

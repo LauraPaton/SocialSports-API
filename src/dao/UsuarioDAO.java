@@ -251,8 +251,8 @@ public class UsuarioDAO {
 		try {
 			Conexion conn = new Conexion();
 			String SQL = "delete "
-					+ "from table(select listaamigos from tablausuarios where emailusuario = ?) "
-					+ "where deref(usuario).emailusuario = ?";
+					+ "from table(select listaamigos from tablausuarios where emailusuario = ?) a"
+					+ "where deref(a.COLUMN_VALUE).emailusuario = ?";
 			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
 			ps.setString(1, correo);
 			ps.setString(2, correoAmigo);
@@ -337,7 +337,6 @@ public class UsuarioDAO {
 				usuario.setFotoPerfilUsuario(null);
 				usuario.setListaAmigos(listaAmigos(correo));
 				usuario.setListaBloqueados(new ArrayList<>());
-				//imagen
 			}
 			
 			rs.close();
@@ -357,12 +356,12 @@ public class UsuarioDAO {
 		
 		try {
 			conn = new Conexion();
-			String sql = "select deref(usuario).EMAILUSUARIO,"
-					+ "deref(usuario).NOMBREUSUARIO,"
-					+ "deref(usuario).APELLIDOSUSUARIO,"
-					+ "deref(usuario).GENEROUSUARIO,"
-					+ "deref(usuario).FECHANACIMIENTOUSUARIO"
-					+ " from table(select listaamigos from tablausuarios where emailusuario = ?)";
+			String sql = "select deref(a.COLUMN_VALUE).EMAILUSUARIO,"
+					+ "deref(a.COLUMN_VALUE).NOMBREUSUARIO,"
+					+ "deref(a.COLUMN_VALUE).APELLIDOSUSUARIO,"
+					+ "deref(a.COLUMN_VALUE).GENEROUSUARIO,"
+					+ "deref(a.COLUMN_VALUE).FECHANACIMIENTOUSUARIO"
+					+ " from table(select u.listaamigos from tablausuarios u where u.emailusuario = ?) a";
 			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
 			ps.setString(1, correo);
 			ResultSet rs = ps.executeQuery();

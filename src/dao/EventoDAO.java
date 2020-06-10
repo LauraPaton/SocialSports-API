@@ -83,9 +83,9 @@ public class EventoDAO {
 			Conexion conn = new Conexion();
 			
 			String sqlEventos = "SELECT IDEVENTO FROM TABLAEVENTOS";
-			String sql = "select deref(usuario).emailusuario "
-					+ "from table(select listaParticipantes from tablaeventos where idevento = ?)"
-					+ "where ? in deref(usuario).emailusuario";
+			String sql = "select deref(a.COLUMN_VALUE).emailusuario "
+					+ "from table(select listaParticipantes from tablaeventos where idevento = ?) a "
+					+ "where ? in deref(a.COLUMN_VALUE).emailusuario";
 			
 			PreparedStatement psEventos = conn.getConnection().prepareStatement(sqlEventos);
 			ResultSet rsEventos = psEventos.executeQuery();
@@ -154,7 +154,7 @@ public class EventoDAO {
 		
 		try {
 			Conexion conn = new Conexion();
-			String SQL = "select deref(usuario).emailusuario from table(select listaparticipantes from tablaeventos where idevento = ?)";
+			String SQL = "select deref(a.COLUMN_VALUE).emailusuario from table(select listaparticipantes from tablaeventos where idevento = ?) a";
 			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
 			ps.setString(1, idEvento);
 			ResultSet rs = ps.executeQuery();
@@ -258,7 +258,6 @@ public class EventoDAO {
 		
 		if(evento.getListaParticipantes() != null) {
 			for(int i = 0; i < evento.getListaParticipantes().size(); i++) {
-				System.out.println(evento.getListaParticipantes().get(i).getEmailUsuario());
 				meterParticipantes(evento.getIdEvento(), evento.getListaParticipantes().get(i).getEmailUsuario());
 			}
 		}
