@@ -1,7 +1,6 @@
 package modelo;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -9,17 +8,16 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Usuario {
 	
 	private String emailUsuario;       
-    private String paswordUsuario;     
+    private String passwordUsuario;     
     private String nombreUsuario;       
     private String apellidosUsuario;
     private String generoUsuario;       
     private String direccionUsuario; 
-    private Date fechaNacimientoUsuario;
-    private Date fechaAltaUsuario;
+    private String fechaNacimientoUsuario;
+    private String fechaAltaUsuario;
     private float reputacionParticipanteUsuario;
     private float reputacionOrganizadorUsuario;
     private String fotoPerfilUsuario;              
-    private boolean isOnlineNow;
     private ArrayList<Usuario> listaAmigos;
     private ArrayList<Usuario> listaBloqueados;
 
@@ -31,12 +29,12 @@ public class Usuario {
         this.emailUsuario = emailUsuario;
     }
 
-    public String getPaswordUsuario() {
-        return paswordUsuario;
+    public String getPasswordUsuario() {
+        return passwordUsuario;
     }
 
-    public void setPaswordUsuario(String paswordUsuario) {
-        this.paswordUsuario = paswordUsuario;
+    public void setPasswordUsuario(String paswordUsuario) {
+        this.passwordUsuario = paswordUsuario;
     }
 
     public String getNombreUsuario() {
@@ -71,19 +69,19 @@ public class Usuario {
         this.direccionUsuario = direccionUsuario;
     }
 
-    public Date getFechaNacimientoUsuario() {
+    public String getFechaNacimientoUsuario() {
         return fechaNacimientoUsuario;
     }
 
-    public void setFechaNacimientoUsuario(Date fechaNacimientoUsuario) {
+    public void setFechaNacimientoUsuario(String fechaNacimientoUsuario) {
         this.fechaNacimientoUsuario = fechaNacimientoUsuario;
     }
 
-    public Date getFechaAltaUsuario() {
+    public String getFechaAltaUsuario() {
         return fechaAltaUsuario;
     }
 
-    public void setFechaAltaUsuario(Date fechaAltaUsuario) {
+    public void setFechaAltaUsuario(String fechaAltaUsuario) {
         this.fechaAltaUsuario = fechaAltaUsuario;
     }
 
@@ -109,14 +107,6 @@ public class Usuario {
 
     public void setFotoPerfilUsuario(String fotoPerfilUsuario) {
         this.fotoPerfilUsuario = fotoPerfilUsuario;
-    }
-
-    public boolean isOnlineNow() {
-        return isOnlineNow;
-    }
-
-    public void setOnlineNow(boolean onlineNow) {
-        isOnlineNow = onlineNow;
     }
 
     public ArrayList<Usuario> getListaAmigos() {

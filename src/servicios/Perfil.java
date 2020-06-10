@@ -36,18 +36,19 @@ public class Perfil {
 	@Path("/amigos/{correo}")
 	@Produces({MediaType.APPLICATION_JSON})
 	public Response listaAmigos(@PathParam("correo") String correo) {
-		
 		usuarioDAO = new UsuarioDAO();
-		ArrayList<Usuario> listaAmigos;
+		ArrayList<Usuario> listaAmigos = usuarioDAO.listaAmigos(correo);
 		
-		listaAmigos = usuarioDAO.listaAmigos(correo);
-		
+		for(Usuario usuario:listaAmigos) {
+			System.out.println(usuario.getNombreUsuario());
+		}
 		return Response.status(Status.OK).entity(listaAmigos).build();
 		
 	}
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/nombre")
 	public Response actualizarNombre(@FormParam("correo") String correo, @FormParam("nombre") String nombre) {
 		
@@ -65,6 +66,7 @@ public class Perfil {
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/apellidos")
 	public Response actualizarApellidos(@FormParam("correo") String correo, @FormParam("apellidos") String apellidos) {
 		usuarioDAO = new UsuarioDAO();
@@ -81,6 +83,7 @@ public class Perfil {
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/direccion")
 	public Response actualizarDireccion(@FormParam("correo") String correo, @FormParam("direccion") String direccion) {
 		usuarioDAO = new UsuarioDAO();
@@ -97,6 +100,7 @@ public class Perfil {
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/genero")
 	public Response actualizarGenero(@FormParam("correo") String correo, @FormParam("genero") String genero) {
 		usuarioDAO = new UsuarioDAO();
@@ -107,6 +111,22 @@ public class Perfil {
 			return Response.status(Status.OK).entity(genero).build(); 
 		}else {
 			return Response.status(Status.CONFLICT).entity("El género no ha podido actualizarse").build();
+		}
+		
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("/nacimiento")
+	public Response actualizarFechaNacimiento(@FormParam("correo") String correo, @FormParam("fecha") String fecha) {
+		usuarioDAO = new UsuarioDAO();
+		System.out.println(correo + " " + fecha);
+	
+		boolean actualizado = usuarioDAO.actualizarFechaNacimiento(correo, usuarioDAO.StringToDate(fecha));
+		if(actualizado) {
+			return Response.status(Status.OK).entity(fecha).build(); 
+		}else {
+			return Response.status(Status.CONFLICT).entity("La fecha de nacimiento no ha podido actualizarse").build();
 		}
 		
 	}

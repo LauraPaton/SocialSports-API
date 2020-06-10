@@ -1,8 +1,11 @@
 package dao;
 
+import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import modelo.Usuario;
@@ -59,6 +62,7 @@ public class UsuarioDAO {
 				}
 				rs.close();
 				ps.close();
+				
 				conn.closeConnection();
 			
 			
@@ -85,6 +89,7 @@ public class UsuarioDAO {
 			if(n > 0) actualizado = true;
 			
 			ps.close();
+			conn.getConnection().commit();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -107,6 +112,7 @@ public class UsuarioDAO {
 			if(n > 0) actualizado = true;
 			
 			ps.close();
+			conn.getConnection().commit();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -130,6 +136,7 @@ public class UsuarioDAO {
 			if(n > 0) actualizado = true;
 			
 			ps.close();
+			conn.getConnection().commit();
 			conn.closeConnection();
 			
 		} catch (ClassNotFoundException | SQLException e) {
@@ -153,6 +160,31 @@ public class UsuarioDAO {
 			if(n > 0) actualizado = true;
 			
 			ps.close();
+			conn.getConnection().commit();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarFechaNacimiento(String correo, Date fecha) {
+		
+		Conexion conn = null;
+		boolean actualizado = false;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET FECHANACIMIENTOUSUARIO = ? WHERE EMAILUSUARIO = ?");
+			ps.setDate(1, new java.sql.Date(fecha.getTime()));
+			ps.setString(2, correo);
+			int n = ps.executeUpdate();
+			
+			if(n > 0) actualizado = true;
+			
+			ps.close();
+			conn.getConnection().commit();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -175,6 +207,7 @@ public class UsuarioDAO {
 			if(n > 0) borrado = true;
 			
 			ps.close();
+			conn.getConnection().commit();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -234,14 +267,22 @@ public class UsuarioDAO {
 			
 			if(rs.next()) {
 				usuario.setEmailUsuario(rs.getNString("EMAILUSUARIO"));
+				usuario.setPasswordUsuario(null);
 				usuario.setNombreUsuario(rs.getString("NOMBREUSUARIO"));
 				usuario.setApellidosUsuario(rs.getString("APELLIDOSUSUARIO"));
 				usuario.setGeneroUsuario(rs.getString("GENEROUSUARIO"));
 				usuario.setDireccionUsuario(rs.getString("DIRECCIONUSUARIO"));
-				usuario.setFechaNacimientoUsuario(rs.getDate("FECHANACIMIENTOUSUARIO"));
-				//usuario.setFechaAltaUsuario(rs.getDate("FECHAALTAUSUARIO"));
+				java.util.Date fechaNacimiento = rs.getDate("FECHANACIMIENTOUSUARIO");
+				if(fechaNacimiento != null) usuario.setFechaNacimientoUsuario(fechaNacimiento.toString());
+				System.out.println(usuario.getFechaNacimientoUsuario());
+				java.util.Date fechaAlta = rs.getDate("FECHAALTAUSUARIO");
+				if(fechaAlta != null) usuario.setFechaAltaUsuario(fechaAlta.toString());
+				System.out.println(usuario.getFechaAltaUsuario());
 				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
 				usuario.setReputacionOrganizadorUsuario(rs.getFloat("REPUTACIONORGANIZADORUSUARIO"));
+				usuario.setFotoPerfilUsuario(null);
+				usuario.setListaAmigos(listaAmigos(correo));
+				usuario.setListaBloqueados(new ArrayList<>());
 				//imagen
 			}
 			
@@ -265,8 +306,9 @@ public class UsuarioDAO {
 			String sql = "select deref(usuario).EMAILUSUARIO,"
 					+ "deref(usuario).NOMBREUSUARIO,"
 					+ "deref(usuario).APELLIDOSUSUARIO,"
-					+ "deref(usuario).GENEROUSUARIO"
-					+ " from the(select listaamigos from tablausuarios where emailusuario = ?)";
+					+ "deref(usuario).GENEROUSUARIO,"
+					+ "deref(usuario).FECHANACIMIENTOUSUARIO"
+					+ " from table(select listaamigos from tablausuarios where emailusuario = ?)";
 			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
 			ps.setString(1, correo);
 			ResultSet rs = ps.executeQuery();
@@ -277,10 +319,25 @@ public class UsuarioDAO {
 				
 				amigo = new Usuario();
 				
-				amigo.setEmailUsuario(rs.getString(1));
-				amigo.setNombreUsuario(rs.getString(2));
-				amigo.setApellidosUsuario(rs.getString(3));
-				amigo.setGeneroUsuario(rs.getString(4));
+				Object objectEmail = rs.getObject(1);
+				if(objectEmail != null) amigo.setEmailUsuario(objectEmail.toString());
+				else amigo.setEmailUsuario(null);
+				
+				Object objectNombre = rs.getObject(2);
+				if(objectNombre != null) amigo.setNombreUsuario(objectNombre.toString());
+				else amigo.setNombreUsuario(null);
+				
+				Object objectApellidos = rs.getObject(3);
+				if(objectApellidos != null) amigo.setApellidosUsuario(objectApellidos.toString());
+				else amigo.setApellidosUsuario(null);
+				
+				Object objectGenero = rs.getObject(4);
+				if(objectGenero != null) amigo.setGeneroUsuario(objectGenero.toString());
+				else amigo.setGeneroUsuario(null);
+				
+				Object objectFecha = rs.getObject(5);
+				if(objectFecha != null) amigo.setFechaNacimientoUsuario(objectFecha.toString());
+				else amigo.setFechaNacimientoUsuario(null);
 				
 				listaAmigos.add(amigo);
 			}
@@ -294,33 +351,6 @@ public class UsuarioDAO {
 		}
 		
 		return listaAmigos;
-	}
-	
-	
-	public ArrayList<String> cogerCorreos() {
-		
-		Conexion conn = null;
-		ArrayList<String> listaCorreos = new ArrayList<>();
-		
-		try {
-			conn = new Conexion();
-			String sql = "SELECT EMAILUSUARIO FROM TABLAUSUARIOS";
-			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
-			ResultSet rs = ps.executeQuery();
-			
-			while(rs.next()) {
-				listaCorreos.add(rs.getString(1));
-			}
-			
-			rs.close();
-			ps.close();
-			conn.closeConnection();
-			
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return listaCorreos;
 	}
 	
 	private String getSalt(String correo) {
@@ -345,5 +375,19 @@ public class UsuarioDAO {
 		}
 		return salt;
 	}
+	
+	public Date StringToDate(String fecha) {
+        SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
+        if (fecha!=null && !fecha.isEmpty()) {
+            try {
+            	Date date = formato.parse(fecha);
+            	System.out.println(fecha+" --- "+date.toString());
+                return date;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
 
 }

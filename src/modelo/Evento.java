@@ -3,8 +3,6 @@ package modelo;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import java.util.ArrayList;
-import java.util.Date;
-
 @XmlRootElement
 public class Evento{
 
@@ -13,9 +11,9 @@ public class Evento{
     private String deporte;    
     private String localidad;  
     private String direccion;
-    private Date fechaEvento;
+    private String fechaEvento;
     private String horaEvento;         
-    private Date fechaCreacionEvento;
+    private String fechaCreacionEvento;
     private int maximoParticipantes;
     private boolean instalacionesReservadas;
     private float costeEvento;
@@ -67,11 +65,11 @@ public class Evento{
         this.direccion = direccion;
     }
 
-    public Date getFechaEvento() {
+    public String getFechaEvento() {
         return fechaEvento;
     }
 
-    public void setFechaEvento(Date fechaEvento) {
+    public void setFechaEvento(String fechaEvento) {
         this.fechaEvento = fechaEvento;
     }
 
@@ -83,11 +81,11 @@ public class Evento{
         this.horaEvento = horaEvento;
     }
 
-    public Date getFechaCreacionEvento() {
+    public String getFechaCreacionEvento() {
         return fechaCreacionEvento;
     }
 
-    public void setFechaCreacionEvento(Date fechaCreacionEvento) {
+    public void setFechaCreacionEvento(String fechaCreacionEvento) {
         this.fechaCreacionEvento = fechaCreacionEvento;
     }
 
@@ -170,4 +168,48 @@ public class Evento{
     public void setListaParticipantes(ArrayList<Usuario> listaParticipantes) {
         this.listaParticipantes = listaParticipantes;
     }
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Evento [idEvento=");
+		builder.append(idEvento);
+		builder.append(", organizadorEvento=");
+		builder.append(organizadorEvento);
+		builder.append(", deporte=");
+		builder.append(deporte);
+		builder.append(", localidad=");
+		builder.append(localidad);
+		builder.append(", direccion=");
+		builder.append(direccion);
+		builder.append(", fechaEvento=");
+		builder.append(fechaEvento);
+		builder.append(", horaEvento=");
+		builder.append(horaEvento);
+		builder.append(", fechaCreacionEvento=");
+		builder.append(fechaCreacionEvento);
+		builder.append(", maximoParticipantes=");
+		builder.append(maximoParticipantes);
+		builder.append(", instalacionesReservadas=");
+		builder.append(instalacionesReservadas);
+		builder.append(", costeEvento=");
+		builder.append(costeEvento);
+		builder.append(", precioPorParticipante=");
+		builder.append(precioPorParticipante);
+		builder.append(", comentarios=");
+		builder.append(comentarios);
+		builder.append(", requisitos=");
+		builder.append(requisitos);
+		builder.append(", terminado=");
+		builder.append(terminado);
+		builder.append(", listaSolicitantes=");
+		builder.append(listaSolicitantes);
+		builder.append(", listaDescartados=");
+		builder.append(listaDescartados);
+		builder.append(", listaParticipantes=");
+		builder.append(listaParticipantes);
+		builder.append("]");
+		return builder.toString();
+	}
+    
 }
