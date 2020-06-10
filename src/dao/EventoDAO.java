@@ -186,6 +186,7 @@ public class EventoDAO {
 			ps.executeUpdate();
 			
 			ps.close();
+			conn.getConnection().commit();
 			conn.closeConnection();
 			
 		} catch (ClassNotFoundException | SQLException e) {

@@ -33,7 +33,7 @@ public class Eventos {
 		
 		if(eventoDAO.crearEvento(evento)) {
 			//PROVISIONAL
-			//Se metería en participantes tanto al creador si fuese participante como a los usuarios que haya invitado
+			//Se metería en los participantes tanto al creador si fuese participante como a los usuarios que haya invitado
 			eventoDAO.enviarInvitaciones(evento); 
 			
 			return Response.status(Status.CREATED).entity(evento).build();
@@ -49,7 +49,6 @@ public class Eventos {
 		eventoDAO = new EventoDAO();
 		ArrayList<Evento> listaEventos = new ArrayList<>();
 		listaEventos = eventoDAO.obtenerEventosPendientes(correo);
-		
 		return Response.status(Status.OK).entity(listaEventos).build();
 	}
 	

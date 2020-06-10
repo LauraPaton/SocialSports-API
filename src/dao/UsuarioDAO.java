@@ -216,6 +216,62 @@ public class UsuarioDAO {
 		return borrado;
 	}
 	
+	public boolean agregarAmigo(String correo, String correoAmigo) {
+		
+		boolean agregado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			String SQL = "insert into "
+					+ "table(select listaamigos from tablausuarios where emailusuario = ?)"
+					+ "(select ref(u) from tablausuarios u where u.emailusuario = ?)";
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ps.setString(1, correo);
+			ps.setString(2, correoAmigo);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) agregado = true;
+			
+			ps.close();
+			conn.getConnection().commit();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return agregado;
+	}
+	
+	public boolean borrarAmigo(String correo, String correoAmigo) {
+		
+		boolean borrado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			String SQL = "delete "
+					+ "from table(select listaamigos from tablausuarios where emailusuario = ?) "
+					+ "where deref(usuario).emailusuario = ?";
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ps.setString(1, correo);
+			ps.setString(2, correoAmigo);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) borrado = true;
+			
+			ps.close();
+			conn.getConnection().commit();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return borrado;
+	}
+	
 	public boolean registroUsuario(String correo, String contrasena) {
 		
 		Conexion conn = null;

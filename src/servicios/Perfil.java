@@ -2,7 +2,6 @@ package servicios;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -22,9 +21,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import dao.ImagenesDAO;
 import dao.UsuarioDAO;
-import seguridad.Secured;
 
-import modelo.Evento;
 import modelo.Usuario;
 
 @Path("/perfil")
@@ -32,19 +29,7 @@ public class Perfil {
 	
 	private UsuarioDAO usuarioDAO;
 	
-	@GET
-	@Path("/amigos/{correo}")
-	@Produces({MediaType.APPLICATION_JSON})
-	public Response listaAmigos(@PathParam("correo") String correo) {
-		usuarioDAO = new UsuarioDAO();
-		ArrayList<Usuario> listaAmigos = usuarioDAO.listaAmigos(correo);
-		
-		for(Usuario usuario:listaAmigos) {
-			System.out.println(usuario.getNombreUsuario());
-		}
-		return Response.status(Status.OK).entity(listaAmigos).build();
-		
-	}
+	/***********DATOS USUARIO***********/
 	
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -53,13 +38,12 @@ public class Perfil {
 	public Response actualizarNombre(@FormParam("correo") String correo, @FormParam("nombre") String nombre) {
 		
 		usuarioDAO = new UsuarioDAO();
-		System.out.println(correo + " " + nombre);
 		
 		boolean actualizado = usuarioDAO.actualizarNombre(correo, nombre);
 		if(actualizado) {
 			return Response.status(Status.OK).entity(nombre).build(); 
 		}else {
-			return Response.status(Status.CONFLICT).entity("El nombre no ha podido actualizarse").build();
+			return Response.status(Status.NOT_FOUND).build();
 		}
 		
 	}
@@ -69,14 +53,14 @@ public class Perfil {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/apellidos")
 	public Response actualizarApellidos(@FormParam("correo") String correo, @FormParam("apellidos") String apellidos) {
+		
 		usuarioDAO = new UsuarioDAO();
-		System.out.println(correo + " " + apellidos);
 	
 		boolean actualizado = usuarioDAO.actualizarApellidos(correo, apellidos);
 		if(actualizado) {
 			return Response.status(Status.OK).entity(apellidos).build(); 
 		}else {
-			return Response.status(Status.CONFLICT).entity("El apellido no ha podido actualizarse").build();
+			return Response.status(Status.NOT_FOUND).build();
 		}
 		
 	}
@@ -87,13 +71,12 @@ public class Perfil {
 	@Path("/direccion")
 	public Response actualizarDireccion(@FormParam("correo") String correo, @FormParam("direccion") String direccion) {
 		usuarioDAO = new UsuarioDAO();
-		System.out.println(correo + " " + direccion);
 		
 		boolean actualizado = usuarioDAO.actualizarDireccion(correo, direccion);
 		if(actualizado) {
 			return Response.status(Status.OK).entity(direccion).build(); 
 		}else {
-			return Response.status(Status.CONFLICT).entity("La dirección no ha podido actualizarse").build();
+			return Response.status(Status.NOT_FOUND).build();
 		}
 		
 	}
@@ -103,14 +86,14 @@ public class Perfil {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/genero")
 	public Response actualizarGenero(@FormParam("correo") String correo, @FormParam("genero") String genero) {
+		
 		usuarioDAO = new UsuarioDAO();
-		System.out.println(correo + " " + genero);
 	
 		boolean actualizado = usuarioDAO.actualizarGenero(correo, genero);
 		if(actualizado) {
 			return Response.status(Status.OK).entity(genero).build(); 
 		}else {
-			return Response.status(Status.CONFLICT).entity("El género no ha podido actualizarse").build();
+			return Response.status(Status.NOT_FOUND).build();
 		}
 		
 	}
@@ -119,14 +102,14 @@ public class Perfil {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/nacimiento")
 	public Response actualizarFechaNacimiento(@FormParam("correo") String correo, @FormParam("fecha") String fecha) {
+		
 		usuarioDAO = new UsuarioDAO();
-		System.out.println(correo + " " + fecha);
 	
 		boolean actualizado = usuarioDAO.actualizarFechaNacimiento(correo, usuarioDAO.StringToDate(fecha));
 		if(actualizado) {
 			return Response.status(Status.OK).entity(fecha).build(); 
 		}else {
-			return Response.status(Status.CONFLICT).entity("La fecha de nacimiento no ha podido actualizarse").build();
+			return Response.status(Status.NOT_FOUND).build();
 		}
 		
 	}
@@ -136,43 +119,59 @@ public class Perfil {
 	@Path("/borrarusuario/{correo}")
 	public Response borrarUsuario(@PathParam("correo") String correo) {
 		
-		System.out.println(correo);
-		
 		usuarioDAO = new UsuarioDAO();
 		
 		boolean borrado = usuarioDAO.borrarUsuario(correo);
 		if(borrado) {
 			return Response.status(Status.NO_CONTENT).build(); 
-			//204 - La petición se ha completado con éxito pero su respuesta no tiene ningún contenido
 		}else {
-			return Response.status(Status.CONFLICT).entity("El usuario no ha sido borrado").build();
-			//409 - Esta respuesta puede ser enviada cuando una petición tiene conflicto con el estado actual del servidor.
+			return Response.status(Status.NOT_FOUND).build();
 		}
 		
 	}
 	
-
+	/***********AMIGOS***********/
+	
 	@GET
-	@Path("/eventospendientes")
+	@Path("/amigos/{correo}")
 	@Produces({MediaType.APPLICATION_JSON})
-	@Secured
-	public Response eventosPendientes() {
-		return null;
+	public Response listaAmigos(@PathParam("correo") String correo) {
+		
+		usuarioDAO = new UsuarioDAO();
+		ArrayList<Usuario> listaAmigos = usuarioDAO.listaAmigos(correo);
+		
+		return Response.status(Status.OK).entity(listaAmigos).build();
+		
 	}
 	
-	@GET
-	@Path("/suscripcionespendientes")
-	@Secured
-	public List<Evento> suscripcionesPendientes() {
-		return null;
+	@POST
+	@Path("/agregaramigo/{correo}/{correoAmigo}")
+	public Response agregarAmigo(@PathParam("correo") String correo, @PathParam("correoAmigo") String correoAmigo) {
+		usuarioDAO = new UsuarioDAO();
+		
+		if(usuarioDAO.agregarAmigo(correo, correoAmigo)) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
 	}
 	
-	@GET 
-	@Path("/eventosrealizados")
-	@Secured
-	public List<Evento> eventosRealizados() {
-		return null;
+	@DELETE
+	@Path("/borraramigo/{correo}/{correoAmigo}")
+	public Response borrarAmigo(@PathParam("correo") String correo, @PathParam("correoAmigo") String correoAmigo) {
+		
+		usuarioDAO = new UsuarioDAO();
+		
+		System.out.println(correo + " " + correoAmigo);
+		
+		if(usuarioDAO.borrarAmigo(correo, correoAmigo)) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
 	}
+	
+	/***********IMAGENES***********/
 	
 	@POST
 	@Path("/uploadimage")
@@ -181,16 +180,14 @@ public class Perfil {
             @FormDataParam("file") InputStream uploadedInputStream,  
             @FormDataParam("file") FormDataContentDisposition fileDetail) {
 		
-		Response.Status responseStatus = Status.UNAUTHORIZED;
-		
 		ImagenesDAO imagenesDAO = new ImagenesDAO();
 		boolean subida = imagenesDAO.uploadImage(uploadedInputStream);
 		
-		if(subida) responseStatus = Status.OK;
+		if(subida){
+				return Response.status(Status.OK).build();
+		}
 		
-		return Response
-				.status(responseStatus)
-				.build();
+		return Response.status(Status.CONFLICT).build();
 
 	}
 	
