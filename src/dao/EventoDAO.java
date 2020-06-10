@@ -1,6 +1,7 @@
 package dao;
 
 import java.util.Date;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -120,35 +121,9 @@ public class EventoDAO {
 						evento.setCosteEvento(rsEventoPendiente.getFloat("COSTEEVENTO"));
 						evento.setComentarios(rsEventoPendiente.getString("COMENTARIOS"));
 						
-						PreparedStatement psOrganizador = conn.getConnection().prepareStatement("SELECT deref(organizadorevento).emailusuario FROM TABLAEVENTOS WHERE IDEVENTO = ?");
-						psOrganizador.setString(1, id);
-						ResultSet rsOrganizador = psOrganizador.executeQuery();
-						
-						if(rsOrganizador.next()) {
-							UsuarioDAO usuarioDAO = new UsuarioDAO();
-							Usuario organizador = usuarioDAO.cogerUsuario(rsOrganizador.getObject(1).toString());
-							evento.setOrganizadorEvento(organizador);
-						}
-						
-						rsOrganizador.close();
-						psOrganizador.close();
-						
-						String req = "select r.requisitos.edadminima, r.requisitos.edadmaxima, r.requisitos.requisitodegenero, r.requisitos.reputacionnecesaria from tablaeventos r where idevento = ?";
-						PreparedStatement psReq = conn.getConnection().prepareStatement(req);
-						psReq.setString(1, id);
-						ResultSet rsReq = psReq.executeQuery();
-						
-						if(rsReq.next()) {
-							Requisitos requisitos = new Requisitos();
-							requisitos.setEdadMinima(rsReq.getInt(1));
-							requisitos.setEdadMaxima(rsReq.getInt(2));
-							requisitos.setRequisitoDeGenero(rsReq.getString(3));
-							requisitos.setReputacionNecesaria(rsReq.getFloat(4));
-							evento.setRequisitos(requisitos);
-						}
-						
-						rsReq.close();
-						psReq.close();
+						evento.setOrganizadorEvento(getOrganizador(id));
+						setRequisitos(evento, id);
+						evento.setListaParticipantes(getParticipantesEvento(id));
 						
 						listaEventos.add(evento);
 					}
@@ -171,6 +146,91 @@ public class EventoDAO {
 		}
 		
 		return listaEventos;
+	}
+	
+	public ArrayList<Usuario> getParticipantesEvento(String idEvento) {
+		
+		ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
+		
+		try {
+			Conexion conn = new Conexion();
+			String SQL = "select deref(usuario).emailusuario from table(select listaparticipantes from tablaeventos where idevento = ?)";
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ps.setString(1, idEvento);
+			ResultSet rs = ps.executeQuery();
+			UsuarioDAO usuarioDAO = new UsuarioDAO();
+			while(rs.next()) {
+				Usuario usuario = usuarioDAO.cogerUsuario(rs.getString(1));
+				listaParticipantes.add(usuario);
+			}
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return listaParticipantes;
+	}
+	
+	public ArrayList<Usuario> getSolicitantesEvento(String idEvento) {
+		return null;
+	}
+	
+	public ArrayList<Usuario> getDescartadosEvento(String idEvento) {
+		return null;
+	}
+	
+	public void setRequisitos(Evento evento, String idEvento) {
+		
+		Conexion conn;
+		
+		try {
+			conn = new Conexion();
+			String req = "select r.requisitos.edadminima, r.requisitos.edadmaxima, r.requisitos.requisitodegenero, r.requisitos.reputacionnecesaria from tablaeventos r where idevento = ?";
+			PreparedStatement psReq = conn.getConnection().prepareStatement(req);
+			psReq.setString(1, idEvento);
+			ResultSet rsReq = psReq.executeQuery();
+			
+			if(rsReq.next()) {
+				Requisitos requisitos = new Requisitos();
+				requisitos.setEdadMinima(rsReq.getInt(1));
+				requisitos.setEdadMaxima(rsReq.getInt(2));
+				requisitos.setRequisitoDeGenero(rsReq.getString(3));
+				requisitos.setReputacionNecesaria(rsReq.getFloat(4));
+				evento.setRequisitos(requisitos);
+			}
+			
+			rsReq.close();
+			psReq.close();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public Usuario getOrganizador(String idEvento) {
+		
+		Usuario organizador = null;
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement psOrganizador = conn.getConnection().prepareStatement("SELECT deref(organizadorevento).emailusuario FROM TABLAEVENTOS WHERE IDEVENTO = ?");
+			psOrganizador.setString(1, idEvento);
+			ResultSet rsOrganizador = psOrganizador.executeQuery();
+			
+			if(rsOrganizador.next()) {
+				UsuarioDAO usuarioDAO = new UsuarioDAO();
+				organizador = usuarioDAO.cogerUsuario(rsOrganizador.getObject(1).toString());
+			}
+			
+			rsOrganizador.close();
+			psOrganizador.close();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return organizador;
 	}
 	
 	public void meterParticipantes(String idEvento, String correo) {

@@ -330,10 +330,8 @@ public class UsuarioDAO {
 				usuario.setDireccionUsuario(rs.getString("DIRECCIONUSUARIO"));
 				java.util.Date fechaNacimiento = rs.getDate("FECHANACIMIENTOUSUARIO");
 				if(fechaNacimiento != null) usuario.setFechaNacimientoUsuario(fechaNacimiento.toString());
-				System.out.println(usuario.getFechaNacimientoUsuario());
 				java.util.Date fechaAlta = rs.getDate("FECHAALTAUSUARIO");
 				if(fechaAlta != null) usuario.setFechaAltaUsuario(fechaAlta.toString());
-				System.out.println(usuario.getFechaAltaUsuario());
 				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
 				usuario.setReputacionOrganizadorUsuario(rs.getFloat("REPUTACIONORGANIZADORUSUARIO"));
 				usuario.setFotoPerfilUsuario(null);
