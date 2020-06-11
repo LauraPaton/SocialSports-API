@@ -3,8 +3,10 @@ package servicios;
 import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -42,7 +44,7 @@ public class Eventos {
 		return Response.status(Status.BAD_REQUEST).build();
 	}
 	
-	//@Secured
+	@Secured
 	@GET
 	@Path("/pendientes/{correo}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -55,19 +57,74 @@ public class Eventos {
 	
 	@Secured
 	@GET
-	@Path("/buscar")
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("/finalizados/{correo}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response buscarEvento() {
-		return null;
+	public Response eventosFinalizados(@PathParam("correo") String correo) {
+		eventoDAO = new EventoDAO();
+		ArrayList<Evento> listaEventos = new ArrayList<>();
+		listaEventos = eventoDAO.obtenerEventosFinalizados(correo);
+		return Response.status(Status.OK).entity(listaEventos).build();
+	}
+	
+	/******DATOS EVENTO******/
+	
+	@Secured
+	@PUT
+	@Path("/fecha")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response actualizarFecha(@FormParam("idEvento") String idEvento, @FormParam("fecha") String fecha) {
+		eventoDAO = new EventoDAO();
+
+		boolean actualizado = eventoDAO.actualizarFecha(idEvento, eventoDAO.StringToDate(fecha));
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
 	}
 	
 	@Secured
-	@POST
-	@Path("/unirse")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response unirseEvento() {
-		return null;
+	@PUT
+	@Path("/hora")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response actualizarHora(@FormParam("idEvento") String idEvento, @FormParam("hora") String hora) {
+		eventoDAO = new EventoDAO();
+
+		boolean actualizado = eventoDAO.actualizarHora(idEvento, hora);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
 	}
 	
+	@Secured
+	@PUT
+	@Path("/direccion")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response actualizarDireccion(@FormParam("idEvento") String idEvento, @FormParam("direccion") String direccion) {
+		eventoDAO = new EventoDAO();
+
+		boolean actualizado = eventoDAO.actualizarDireccion(idEvento, direccion);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@Secured
+	@PUT
+	@Path("/maximoparticipantes")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response actualizarMaxParticipantes(@FormParam("idEvento") String idEvento, @FormParam("maxParticipantes") int maxParticipantes) {
+		eventoDAO = new EventoDAO();
+
+		boolean actualizado = eventoDAO.actualizarMaxParticipantes(idEvento, maxParticipantes);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
 }

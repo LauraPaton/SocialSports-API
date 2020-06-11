@@ -232,11 +232,53 @@ public class EventoDAO {
 	}
 	
 	public ArrayList<Usuario> getSolicitantesEvento(String idEvento) {
-		return new ArrayList<Usuario>();
+ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
+		
+		try {
+			Conexion conn = new Conexion();
+			String SQL = "select deref(a.COLUMN_VALUE).emailusuario from table(select listasolicitantes from tablaeventos where idevento = ?) a";
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ps.setString(1, idEvento);
+			ResultSet rs = ps.executeQuery();
+			UsuarioDAO usuarioDAO = new UsuarioDAO();
+			while(rs.next()) {
+				Usuario usuario = usuarioDAO.cogerUsuario(rs.getString(1));
+				listaParticipantes.add(usuario);
+			}
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return listaParticipantes;
 	}
 	
 	public ArrayList<Usuario> getDescartadosEvento(String idEvento) {
-		return new ArrayList<Usuario>();
+ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
+		
+		try {
+			Conexion conn = new Conexion();
+			String SQL = "select deref(a.COLUMN_VALUE).emailusuario from table(select listadescartados from tablaeventos where idevento = ?) a";
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ps.setString(1, idEvento);
+			ResultSet rs = ps.executeQuery();
+			UsuarioDAO usuarioDAO = new UsuarioDAO();
+			while(rs.next()) {
+				Usuario usuario = usuarioDAO.cogerUsuario(rs.getString(1));
+				listaParticipantes.add(usuario);
+			}
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return listaParticipantes;
 	}
 	
 	public void setRequisitos(Evento evento, String idEvento) {
@@ -288,6 +330,98 @@ public class EventoDAO {
 		}
 		
 		return organizador;
+	}
+	
+	public boolean actualizarFecha(String idEvento, Date fecha) {
+		Conexion conn = null;
+		boolean actualizado = false;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS SET FECHAEVENTO = ? WHERE IDEVENTO = ?");
+			ps.setDate(1, new java.sql.Date(fecha.getTime()));
+			ps.setString(2, idEvento);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarHora(String idEvento, String hora) {
+		Conexion conn = null;
+		boolean actualizado = false;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS SET HORAEVENTO = ? WHERE IDEVENTO = ?");
+			ps.setString(1,  hora);
+			ps.setString(2, idEvento);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarDireccion(String idEvento, String direccion) {
+		Conexion conn = null;
+		boolean actualizado = false;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS SET DIRECCION = ? WHERE IDEVENTO = ?");
+			ps.setString(1,  direccion);
+			ps.setString(2, idEvento);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarMaxParticipantes(String idEvento, int maxParticipantes) {
+		Conexion conn = null;
+		boolean actualizado = false;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS SET MAXIMOPARTICIPANTES = ? WHERE IDEVENTO = ?");
+			ps.setInt(1,  maxParticipantes);
+			ps.setString(2, idEvento);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
 	}
 	
 	public void meterParticipantes(String idEvento, String correo) {
