@@ -81,13 +81,15 @@ public class EventoDAO {
 		try {
 			Conexion conn = new Conexion();
 			
-			String sqlEventos = "SELECT IDEVENTO FROM TABLAEVENTOS";
+			String sqlEventos = "SELECT IDEVENTO FROM TABLAEVENTOS WHERE TERMINADO = 0";
+			
 			String sql = "select deref(a.COLUMN_VALUE).emailusuario "
 					+ "from table(select listaParticipantes from tablaeventos where idevento = ?) a "
 					+ "where ? in deref(a.COLUMN_VALUE).emailusuario";
 			
 			PreparedStatement psEventos = conn.getConnection().prepareStatement(sqlEventos);
 			ResultSet rsEventos = psEventos.executeQuery();
+			
 			while(rsEventos.next()) {
 				String id = rsEventos.getString(1);
 				
@@ -97,39 +99,7 @@ public class EventoDAO {
 				ResultSet rs = ps.executeQuery();
 				
 				if(rs.next()) {
-					Evento evento = new Evento();
-					
-					PreparedStatement psEventoPendiente = conn.getConnection().prepareStatement("SELECT * FROM TABLAEVENTOS WHERE IDEVENTO = ?");
-					psEventoPendiente.setString(1, id);
-					ResultSet rsEventoPendiente = psEventoPendiente.executeQuery();
-					
-					if(rsEventoPendiente.next()) {
-						evento.setIdEvento(id);
-						evento.setDeporte(rsEventoPendiente.getString("DEPORTE"));
-						evento.setDireccion(rsEventoPendiente.getString("DIRECCION"));
-						Date fechaCreacion = rsEventoPendiente.getDate("FECHACREACIONEVENTO");
-						if(fechaCreacion != null) evento.setFechaCreacionEvento(fechaCreacion.toString());
-						Date fechaEvento = rsEventoPendiente.getDate("FECHAEVENTO");
-						if(fechaEvento != null) evento.setFechaEvento(fechaEvento.toString());
-						evento.setHoraEvento(rsEventoPendiente.getString("HORAEVENTO"));
-						evento.setInstalacionesReservadas(rsEventoPendiente.getBoolean("INSTALACIONESRESERVADAS"));
-						evento.setLocalidad(rsEventoPendiente.getString("LOCALIDAD"));
-						evento.setTerminado(rsEventoPendiente.getBoolean("TERMINADO"));
-						evento.setPrecioPorParticipante(rsEventoPendiente.getFloat("PRECIOPORPARTICIPANTE"));
-						evento.setMaximoParticipantes(rsEventoPendiente.getInt("MAXIMOPARTICIPANTES"));
-						evento.setCosteEvento(rsEventoPendiente.getFloat("COSTEEVENTO"));
-						evento.setComentarios(rsEventoPendiente.getString("COMENTARIOS"));
-						
-						evento.setOrganizadorEvento(getOrganizador(id));
-						setRequisitos(evento, id);
-						evento.setListaParticipantes(getParticipantesEvento(id));
-						evento.setListaDescartados(getSolicitantesEvento(id));
-						evento.setListaSolicitantes(getDescartadosEvento(id));
-						listaEventos.add(evento);
-					}
-					
-					rsEventoPendiente.close();
-					psEventoPendiente.close();
+					listaEventos.add(getEvento(id, correo));
 				}
 				
 				rs.close();
@@ -146,6 +116,93 @@ public class EventoDAO {
 		}
 		
 		return listaEventos;
+	}
+	
+	public ArrayList<Evento> obtenerEventosFinalizados(String correo){
+		ArrayList<Evento> listaEventos = new ArrayList<>();
+		
+		try {
+			Conexion conn = new Conexion();
+			
+			String sqlEventos = "SELECT IDEVENTO FROM TABLAEVENTOS WHERE TERMINADO = 1";
+			
+			String sql = "select deref(a.COLUMN_VALUE).emailusuario "
+					+ "from table(select listaParticipantes from tablaeventos where idevento = ?) a "
+					+ "where ? in deref(a.COLUMN_VALUE).emailusuario";
+			
+			PreparedStatement psEventos = conn.getConnection().prepareStatement(sqlEventos);
+			ResultSet rsEventos = psEventos.executeQuery();
+			
+			while(rsEventos.next()) {
+				String id = rsEventos.getString(1);
+				
+				PreparedStatement ps = conn.getConnection().prepareStatement(sql);
+				ps.setString(1, id);
+				ps.setString(2, correo);
+				ResultSet rs = ps.executeQuery();
+				
+				if(rs.next()) {
+					listaEventos.add(getEvento(id, correo));
+				}
+				
+				rs.close();
+				ps.close();
+				
+			}
+			
+			rsEventos.close();
+			psEventos.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return listaEventos;
+	}
+	
+	public Evento getEvento(String id, String correo) {
+		
+		Conexion conn;
+		Evento evento = new Evento();
+		
+		try {
+			conn = new Conexion();	
+			PreparedStatement psEventoPendiente = conn.getConnection().prepareStatement("SELECT * FROM TABLAEVENTOS WHERE IDEVENTO = ?");
+			psEventoPendiente.setString(1, id);
+			ResultSet rsEventoPendiente = psEventoPendiente.executeQuery();
+			
+			if(rsEventoPendiente.next()) {
+				evento.setIdEvento(id);
+				evento.setDeporte(rsEventoPendiente.getString("DEPORTE"));
+				evento.setDireccion(rsEventoPendiente.getString("DIRECCION"));
+				Date fechaCreacion = rsEventoPendiente.getDate("FECHACREACIONEVENTO");
+				if(fechaCreacion != null) evento.setFechaCreacionEvento(fechaCreacion.toString());
+				Date fechaEvento = rsEventoPendiente.getDate("FECHAEVENTO");
+				if(fechaEvento != null) evento.setFechaEvento(fechaEvento.toString());
+				evento.setHoraEvento(rsEventoPendiente.getString("HORAEVENTO"));
+				evento.setInstalacionesReservadas(rsEventoPendiente.getBoolean("INSTALACIONESRESERVADAS"));
+				evento.setLocalidad(rsEventoPendiente.getString("LOCALIDAD"));
+				evento.setTerminado(rsEventoPendiente.getBoolean("TERMINADO"));
+				evento.setPrecioPorParticipante(rsEventoPendiente.getFloat("PRECIOPORPARTICIPANTE"));
+				evento.setMaximoParticipantes(rsEventoPendiente.getInt("MAXIMOPARTICIPANTES"));
+				evento.setCosteEvento(rsEventoPendiente.getFloat("COSTEEVENTO"));
+				evento.setComentarios(rsEventoPendiente.getString("COMENTARIOS"));
+				
+				evento.setOrganizadorEvento(getOrganizador(id));
+				setRequisitos(evento, id);
+				evento.setListaParticipantes(getParticipantesEvento(id));
+				evento.setListaDescartados(getSolicitantesEvento(id));
+				evento.setListaSolicitantes(getDescartadosEvento(id));
+			}
+			
+			rsEventoPendiente.close();
+			psEventoPendiente.close();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return evento;
 	}
 	
 	public ArrayList<Usuario> getParticipantesEvento(String idEvento) {

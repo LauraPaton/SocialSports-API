@@ -38,7 +38,7 @@ public class Registro {
 			}else if(usuarioDAO.existeCorreo(emailUsuario)){
 				return Response
 						.status(Status.CONFLICT)
-						.entity("This email is already registered.")
+						.entity("Este email ya está registrado.")
 						.build();
 			}
 		}
