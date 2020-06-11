@@ -42,7 +42,8 @@ public class Usuario {
     }
 
     public void setNombreUsuario(String nombreUsuario) {
-        this.nombreUsuario = nombreUsuario;
+    	if(nombreUsuario == null) this.nombreUsuario = "";
+    	else this.nombreUsuario = nombreUsuario;
     }
 
     public String getApellidosUsuario() {
@@ -50,7 +51,8 @@ public class Usuario {
     }
 
     public void setApellidosUsuario(String apellidosUsuario) {
-        this.apellidosUsuario = apellidosUsuario;
+    	if(apellidosUsuario == null) this.apellidosUsuario = "";
+    	else this.apellidosUsuario = apellidosUsuario;
     }
 
     public String getGeneroUsuario() {
@@ -58,7 +60,8 @@ public class Usuario {
     }
 
     public void setGeneroUsuario(String generoUsuario) {
-        this.generoUsuario = generoUsuario;
+    	if(generoUsuario == null) this.generoUsuario = "";
+    	else this.generoUsuario = generoUsuario;
     }
 
     public String getDireccionUsuario() {
@@ -66,7 +69,8 @@ public class Usuario {
     }
 
     public void setDireccionUsuario(String direccionUsuario) {
-        this.direccionUsuario = direccionUsuario;
+    	if(direccionUsuario == null) this.direccionUsuario = "";
+    	else this.direccionUsuario = direccionUsuario;
     }
 
     public String getFechaNacimientoUsuario() {

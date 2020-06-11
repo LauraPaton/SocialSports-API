@@ -60,9 +60,9 @@ public class UsuarioDAO {
 						valido = true;
 					}
 				}
+				
 				rs.close();
 				ps.close();
-				
 				conn.closeConnection();
 			
 			
@@ -89,7 +89,6 @@ public class UsuarioDAO {
 			if(n > 0) actualizado = true;
 			
 			ps.close();
-			conn.getConnection().commit();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -112,7 +111,6 @@ public class UsuarioDAO {
 			if(n > 0) actualizado = true;
 			
 			ps.close();
-			conn.getConnection().commit();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -136,7 +134,6 @@ public class UsuarioDAO {
 			if(n > 0) actualizado = true;
 			
 			ps.close();
-			conn.getConnection().commit();
 			conn.closeConnection();
 			
 		} catch (ClassNotFoundException | SQLException e) {
@@ -160,7 +157,6 @@ public class UsuarioDAO {
 			if(n > 0) actualizado = true;
 			
 			ps.close();
-			conn.getConnection().commit();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -184,10 +180,40 @@ public class UsuarioDAO {
 			if(n > 0) actualizado = true;
 			
 			ps.close();
-			conn.getConnection().commit();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+public boolean actualizarPassword(String correo, String password) {
+		
+		Conexion conn = null;
+		boolean actualizado = false;
+		Validaciones validaciones = new Validaciones();
+		
+		if(validaciones.validarCorreo(correo) && validaciones.validarContrasena(password)) {
+			try {
+				PasswordHash hash = new PasswordHash();
+				String salt = getSalt(correo);
+				hash.generatePassword(password, salt);
+		        String hashedString = hash.getHash();
+				
+				conn = new Conexion();
+				PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET PASSWORDUSUARIO = ? WHERE EMAILUSUARIO = ?");
+				ps.setString(1, hashedString);
+				ps.setString(2, correo);
+				int n = ps.executeUpdate();
+				
+				if(n > 0) actualizado = true;
+				
+				ps.close();
+				conn.closeConnection();
+			} catch (ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return actualizado;
@@ -207,7 +233,6 @@ public class UsuarioDAO {
 			if(n > 0) borrado = true;
 			
 			ps.close();
-			conn.getConnection().commit();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
@@ -234,7 +259,6 @@ public class UsuarioDAO {
 			if(n > 0) agregado = true;
 			
 			ps.close();
-			conn.getConnection().commit();
 			conn.closeConnection();
 			
 		} catch (ClassNotFoundException | SQLException e) {
@@ -250,9 +274,7 @@ public class UsuarioDAO {
 		
 		try {
 			Conexion conn = new Conexion();
-			String SQL = "delete "
-					+ "from table(select listaamigos from tablausuarios where emailusuario = ?) a"
-					+ "where deref(a.COLUMN_VALUE).emailusuario = ?";
+			String SQL = "delete from table(select listaamigos from tablausuarios where emailusuario = ?) a where deref(a.COLUMN_VALUE).emailusuario = ?";
 			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
 			ps.setString(1, correo);
 			ps.setString(2, correoAmigo);
@@ -262,7 +284,6 @@ public class UsuarioDAO {
 			if(n > 0) borrado = true;
 			
 			ps.close();
-			conn.getConnection().commit();
 			conn.closeConnection();
 			
 		} catch (ClassNotFoundException | SQLException e) {
@@ -372,27 +393,23 @@ public class UsuarioDAO {
 				
 				amigo = new Usuario();
 				
-				Object objectEmail = rs.getObject(1);
-				if(objectEmail != null) amigo.setEmailUsuario(objectEmail.toString());
-				else amigo.setEmailUsuario(null);
+				String email = rs.getString(1);
+				String nombre = rs.getString(2);
+				String apellidos = rs.getString(3);
+				String genero = rs.getString(4);
+				Date date = rs.getDate(5);
 				
-				Object objectNombre = rs.getObject(2);
-				if(objectNombre != null) amigo.setNombreUsuario(objectNombre.toString());
-				else amigo.setNombreUsuario(null);
+				amigo.setEmailUsuario(email);
+				amigo.setNombreUsuario(nombre);
+				amigo.setApellidosUsuario(apellidos);
+				amigo.setGeneroUsuario(genero);
+				if(date != null) amigo.setFechaNacimientoUsuario(date.toString());
 				
-				Object objectApellidos = rs.getObject(3);
-				if(objectApellidos != null) amigo.setApellidosUsuario(objectApellidos.toString());
-				else amigo.setApellidosUsuario(null);
-				
-				Object objectGenero = rs.getObject(4);
-				if(objectGenero != null) amigo.setGeneroUsuario(objectGenero.toString());
-				else amigo.setGeneroUsuario(null);
-				
-				Object objectFecha = rs.getObject(5);
-				if(objectFecha != null) amigo.setFechaNacimientoUsuario(objectFecha.toString());
-				else amigo.setFechaNacimientoUsuario(null);
-				
-				listaAmigos.add(amigo);
+				//Cuando borras un usuario de la base de datos y estaba como amigo en otro usuario, 
+				//se queda como un nulo en los amigos
+				if(email != null || nombre != null || apellidos != null || genero != null || date != null) {
+					listaAmigos.add(amigo);
+				}
 			}
 			
 			rs.close();

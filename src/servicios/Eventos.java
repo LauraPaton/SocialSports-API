@@ -21,7 +21,7 @@ public class Eventos {
 	
 	private EventoDAO eventoDAO;
 
-	//@Secured
+	@Secured
 	@POST
 	@Path("/crear")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -42,6 +42,7 @@ public class Eventos {
 		return Response.status(Status.BAD_REQUEST).build();
 	}
 	
+	//@Secured
 	@GET
 	@Path("/pendientes/{correo}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -50,14 +51,6 @@ public class Eventos {
 		ArrayList<Evento> listaEventos = new ArrayList<>();
 		listaEventos = eventoDAO.obtenerEventosPendientes(correo);
 		return Response.status(Status.OK).entity(listaEventos).build();
-	}
-	
-	//@Secured
-	@POST
-	@Path("/invitaciones/{idEvento}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response enviarInvitaciones(@PathParam("idEvento") String idEvento, ArrayList<String> listaInvitados) {
-		return null;
 	}
 	
 	@Secured

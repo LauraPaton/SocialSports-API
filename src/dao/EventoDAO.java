@@ -74,7 +74,6 @@ public class EventoDAO {
 		return creado;
 	}
 	
-	//Método muy chapucero
 	public ArrayList<Evento> obtenerEventosPendientes(String correo) {
 		
 		ArrayList<Evento> listaEventos = new ArrayList<>();
@@ -124,7 +123,8 @@ public class EventoDAO {
 						evento.setOrganizadorEvento(getOrganizador(id));
 						setRequisitos(evento, id);
 						evento.setListaParticipantes(getParticipantesEvento(id));
-						
+						evento.setListaDescartados(getSolicitantesEvento(id));
+						evento.setListaSolicitantes(getDescartadosEvento(id));
 						listaEventos.add(evento);
 					}
 					
@@ -175,11 +175,11 @@ public class EventoDAO {
 	}
 	
 	public ArrayList<Usuario> getSolicitantesEvento(String idEvento) {
-		return null;
+		return new ArrayList<Usuario>();
 	}
 	
 	public ArrayList<Usuario> getDescartadosEvento(String idEvento) {
-		return null;
+		return new ArrayList<Usuario>();
 	}
 	
 	public void setRequisitos(Evento evento, String idEvento) {
@@ -246,7 +246,6 @@ public class EventoDAO {
 			ps.executeUpdate();
 			
 			ps.close();
-			conn.getConnection().commit();
 			conn.closeConnection();
 			
 		} catch (ClassNotFoundException | SQLException e) {
@@ -258,6 +257,7 @@ public class EventoDAO {
 		
 		if(evento.getListaParticipantes() != null) {
 			for(int i = 0; i < evento.getListaParticipantes().size(); i++) {
+				System.out.println(evento.getListaParticipantes().get(i).getEmailUsuario());
 				meterParticipantes(evento.getIdEvento(), evento.getListaParticipantes().get(i).getEmailUsuario());
 			}
 		}

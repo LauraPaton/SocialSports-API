@@ -54,7 +54,8 @@ public class Evento{
     }
 
     public void setLocalidad(String localidad) {
-        this.localidad = localidad;
+    	if(localidad == null) this.localidad = "";
+    	else this.localidad = localidad;
     }
 
     public String getDireccion() {
@@ -62,7 +63,8 @@ public class Evento{
     }
 
     public void setDireccion(String direccion) {
-        this.direccion = direccion;
+        if(direccion == null) this.direccion = "";
+        else this.direccion = direccion;
     }
 
     public String getFechaEvento() {
@@ -78,7 +80,8 @@ public class Evento{
     }
 
     public void setHoraEvento(String horaEvento) {
-        this.horaEvento = horaEvento;
+    	if(horaEvento == null) this.horaEvento = "";
+    	else this.horaEvento = horaEvento;
     }
 
     public String getFechaCreacionEvento() {
@@ -126,7 +129,8 @@ public class Evento{
     }
 
     public void setComentarios(String comentarios) {
-        this.comentarios = comentarios;
+    	if(comentarios == null) this.comentarios = "";
+    	else this.comentarios = comentarios;
     }
 
     public Requisitos getRequisitos() {
@@ -166,8 +170,9 @@ public class Evento{
     }
 
     public void setListaParticipantes(ArrayList<Usuario> listaParticipantes) {
-        this.listaParticipantes = listaParticipantes;
+    	this.listaParticipantes = listaParticipantes;
     }
+
 
 	@Override
 	public String toString() {

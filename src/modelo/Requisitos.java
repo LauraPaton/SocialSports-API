@@ -24,7 +24,8 @@ public class Requisitos {
 		return requisitoDeGenero;
 	}
 	public void setRequisitoDeGenero(String requisitoDeGenero) {
-		this.requisitoDeGenero = requisitoDeGenero;
+		if(requisitoDeGenero == null) this.requisitoDeGenero = "";
+		else this.requisitoDeGenero = requisitoDeGenero;
 	}
 	public float getReputacionNecesaria() {
 		return reputacionNecesaria;

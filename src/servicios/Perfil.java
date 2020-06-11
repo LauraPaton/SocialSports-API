@@ -23,6 +23,7 @@ import dao.ImagenesDAO;
 import dao.UsuarioDAO;
 
 import modelo.Usuario;
+import seguridad.Secured;
 
 @Path("/perfil")
 public class Perfil {
@@ -31,6 +32,7 @@ public class Perfil {
 	
 	/***********DATOS USUARIO***********/
 	
+	@Secured
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -48,6 +50,7 @@ public class Perfil {
 		
 	}
 	
+	@Secured
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -65,6 +68,7 @@ public class Perfil {
 		
 	}
 	
+	@Secured
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -81,6 +85,7 @@ public class Perfil {
 		
 	}
 	
+	@Secured
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
@@ -98,6 +103,7 @@ public class Perfil {
 		
 	}
 	
+	@Secured
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/nacimiento")
@@ -114,6 +120,24 @@ public class Perfil {
 		
 	}
 	
+	//@Secured
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("/password")
+	public Response actualizarPassword(@FormParam("correo") String correo, @FormParam("password") String password) {
+		
+		usuarioDAO = new UsuarioDAO();
+	
+		boolean actualizado = usuarioDAO.actualizarPassword(correo, password);
+		if(actualizado) {
+			return Response.status(Status.OK).entity(password).build(); 
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+		
+	}
+	
+	@Secured
 	@DELETE
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/borrarusuario/{correo}")
@@ -132,6 +156,7 @@ public class Perfil {
 	
 	/***********AMIGOS***********/
 	
+	@Secured
 	@GET
 	@Path("/amigos/{correo}")
 	@Produces({MediaType.APPLICATION_JSON})
@@ -144,8 +169,9 @@ public class Perfil {
 		
 	}
 	
+	@Secured
 	@POST
-	@Path("/agregaramigo/{correo}/{correoAmigo}")
+	@Path("/amigos/agregar/{correo}/{correoAmigo}")
 	public Response agregarAmigo(@PathParam("correo") String correo, @PathParam("correoAmigo") String correoAmigo) {
 		usuarioDAO = new UsuarioDAO();
 		
@@ -156,9 +182,10 @@ public class Perfil {
 		}
 	}
 	
+	@Secured
 	@DELETE
-	@Path("/borraramigo/{correo}/{correoAmigo}")
-	public Response borrarAmigo(@PathParam("correo") String correo, @PathParam("correoAmigo") String correoAmigo) {
+	@Path("/amigos/eliminar/{correo}/{correoAmigo}")
+	public Response eliminarAmigo(@PathParam("correo") String correo, @PathParam("correoAmigo") String correoAmigo) {
 		
 		usuarioDAO = new UsuarioDAO();
 		
@@ -173,8 +200,9 @@ public class Perfil {
 	
 	/***********IMAGENES***********/
 	
+	@Secured
 	@POST
-	@Path("/uploadimage")
+	@Path("/imagenes/subir")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)  
     public Response uploadFile(  
             @FormDataParam("file") InputStream uploadedInputStream,  
@@ -191,8 +219,9 @@ public class Perfil {
 
 	}
 	
+	@Secured
 	@GET
-	@Path("/downloadimage")
+	@Path("/imagenes/descargar")
 	@Produces({"image/png", "image/jpeg", "image/jpg"})
 	public Response downloadFile() {
 		
