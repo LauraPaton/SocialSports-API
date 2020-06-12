@@ -356,8 +356,6 @@ public boolean actualizarPassword(String correo, String password) {
 				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
 				usuario.setReputacionOrganizadorUsuario(rs.getFloat("REPUTACIONORGANIZADORUSUARIO"));
 				usuario.setFotoPerfilUsuario(null);
-				usuario.setListaAmigos(listaAmigos(correo));
-				usuario.setListaBloqueados(new ArrayList<>());
 			}
 			
 			rs.close();
@@ -405,9 +403,7 @@ public boolean actualizarPassword(String correo, String password) {
 				amigo.setGeneroUsuario(genero);
 				if(date != null) amigo.setFechaNacimientoUsuario(date.toString());
 				
-				//Cuando borras un usuario de la base de datos y estaba como amigo en otro usuario, 
-				//se queda como un nulo en los amigos
-				if(email != null || nombre != null || apellidos != null || genero != null || date != null) {
+				if(email != null) {
 					listaAmigos.add(amigo);
 				}
 			}
@@ -421,6 +417,11 @@ public boolean actualizarPassword(String correo, String password) {
 		}
 		
 		return listaAmigos;
+	}
+	
+	public ArrayList<Usuario> listaBloqueados(String correo) {
+		ArrayList<Usuario> listaBloqueados = new ArrayList<>();
+		return listaBloqueados;
 	}
 	
 	private String getSalt(String correo) {

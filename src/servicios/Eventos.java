@@ -79,7 +79,6 @@ public class Eventos {
 		}else if(deporte.equals("") && localidad.equals("") && fecha.equals("") && hora.equals("") && reservado == false && reputacion == -1.0) {
 			return Response.status(Status.BAD_REQUEST).build();
 		}else {
-			System.out.println("Se mete");
 			eventoDAO = new EventoDAO();
 			ArrayList<Evento> listaEventos = eventoDAO.buscarEventoFiltrado(deporte, localidad, eventoDAO.StringToDate(fecha), hora, reservado, reputacion);
 			return Response.status(Status.OK).entity(listaEventos).build();

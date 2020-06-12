@@ -1,4 +1,5 @@
 package servicios;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -30,6 +31,8 @@ public class Login {
 			String token = jwt.generarToken(emailUsuario);
 			
 			Usuario user = usuarioDAO.cogerUsuario(emailUsuario);
+			user.setListaAmigos(usuarioDAO.listaAmigos(emailUsuario));
+			user.setListaBloqueados(usuarioDAO.listaBloqueados(emailUsuario));
 			
 			return Response
 					.status(Status.OK)
