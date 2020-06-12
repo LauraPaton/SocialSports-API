@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import modelo.Evento;
 import modelo.Usuario;
 import seguridad.PasswordHash;
 import seguridad.Validaciones;
@@ -293,6 +294,58 @@ public boolean actualizarPassword(String correo, String password) {
 		return borrado;
 	}
 	
+	public boolean bloquearUsuario(String correo, String correoBloqueado) {
+		boolean bloqueado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			String SQL = "insert into "
+					+ "table(select listabloqueados from tablausuarios where emailusuario = ?)"
+					+ "(select ref(u) from tablausuarios u where u.emailusuario = ?)";
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ps.setString(1, correo);
+			ps.setString(2, correoBloqueado);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) bloqueado = true;
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return bloqueado;
+	}
+	
+	public boolean quitarBloqueo(String correo, String correoBloqueado) {
+		boolean desbloqueado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			String SQL = "delete from "
+					+ "table(select listabloqueados from tablausuarios where emailusuario = ?) a "
+					+ "where deref(a.COLUMN_VALUE).emailusuario = ?)";
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ps.setString(1, correo);
+			ps.setString(2, correoBloqueado);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) desbloqueado = true;
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return desbloqueado;
+	}
+	
 	public boolean registroUsuario(String correo, String contrasena) {
 		
 		Conexion conn = null;
@@ -420,8 +473,130 @@ public boolean actualizarPassword(String correo, String password) {
 	}
 	
 	public ArrayList<Usuario> listaBloqueados(String correo) {
+		Conexion conn = null;
 		ArrayList<Usuario> listaBloqueados = new ArrayList<>();
+		
+		try {
+			conn = new Conexion();
+			String sql = "select deref(a.COLUMN_VALUE).EMAILUSUARIO,"
+					+ "deref(a.COLUMN_VALUE).NOMBREUSUARIO,"
+					+ "deref(a.COLUMN_VALUE).APELLIDOSUSUARIO,"
+					+ "deref(a.COLUMN_VALUE).GENEROUSUARIO,"
+					+ "deref(a.COLUMN_VALUE).FECHANACIMIENTOUSUARIO"
+					+ " from table(select u.listabloqueados from tablausuarios u where u.emailusuario = ?) a";
+			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
+			ps.setString(1, correo);
+			ResultSet rs = ps.executeQuery();
+			
+			Usuario bloqueado;
+			
+			while(rs.next()) {
+				
+				bloqueado = new Usuario();
+				
+				String email = rs.getString(1);
+				String nombre = rs.getString(2);
+				String apellidos = rs.getString(3);
+				String genero = rs.getString(4);
+				Date date = rs.getDate(5);
+				
+				bloqueado.setEmailUsuario(email);
+				bloqueado.setNombreUsuario(nombre);
+				bloqueado.setApellidosUsuario(apellidos);
+				bloqueado.setGeneroUsuario(genero);
+				if(date != null) bloqueado.setFechaNacimientoUsuario(date.toString());
+				
+				if(email != null) {
+					listaBloqueados.add(bloqueado);
+				}
+			}
+			
+			rs.close();
+			ps.close();
+			conn.closeConnection();
+		
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
 		return listaBloqueados;
+	}
+	
+	public Float calcularPuntuacionParticipante(String correo) {
+		
+		Conexion conn = null;
+		int vecesPuntuado = 0;
+		float sumaPuntuaciones = 0, puntuacionFinal = 0;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT COUNT(CALIFICACION), SUM(CALIFICACION) FROM TABLAPUNTUACIONESPARTICIPANTES WHERE EMAILUSUARIOPUNTUADO = ?");
+			ps.setString(1, correo);
+			ResultSet rs = ps.executeQuery();
+			
+			if (rs.next()) {
+				vecesPuntuado = rs.getInt(1);
+				sumaPuntuaciones = rs.getFloat(2);
+			}
+			
+			if (vecesPuntuado == 0)
+				puntuacionFinal = 4f;
+			else
+				puntuacionFinal = sumaPuntuaciones / vecesPuntuado;
+			
+			ps.close();
+			rs.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Puntuación como Participante >>>>> "+puntuacionFinal);
+		return puntuacionFinal;
+	}
+	
+	
+	public Float calcularPuntuacionOrganizador(String correo) {
+		
+		EventoDAO eventoDAO = new EventoDAO();
+		ArrayList<Evento> listaEventosTerminados = eventoDAO.obtenerEventosFinalizados(correo);
+		Conexion conn = null;
+		float sumaPuntuaciones = 0, puntuacionFinal = 0;
+		int vecesPuntuado = 0, sumaVecesPuntuado = 0;
+		
+		try {
+			conn = new Conexion();
+			for (Evento evento: listaEventosTerminados) {
+				System.out.println("Evento "+evento.getIdEvento());
+				PreparedStatement ps = conn.getConnection().prepareStatement("SELECT COUNT(CALIFICACION), SUM(CALIFICACION) FROM TABLAPUNTUACIONESEVENTOS WHERE IDEVENTOFINALIZADO = ?");
+				ps.setString(1, evento.getIdEvento());
+				ResultSet rs = ps.executeQuery();
+				
+				if (rs.next()) {
+					vecesPuntuado = rs.getInt(1);
+					sumaVecesPuntuado = sumaVecesPuntuado + vecesPuntuado;
+				}
+				
+				if (vecesPuntuado > 0)
+					sumaPuntuaciones = sumaPuntuaciones + rs.getFloat(2);
+				
+				ps.close();
+				rs.close();
+				System.out.println("Evento "+evento.getIdEvento()+" puntuado "+vecesPuntuado+" veces. Suma acumulada de Puntuaciones en tus eventos: "+sumaPuntuaciones);
+			}
+			
+			if (sumaVecesPuntuado == 0)
+				puntuacionFinal = 4f;
+			else
+				puntuacionFinal = sumaPuntuaciones / sumaVecesPuntuado;
+			
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Puntuación como Organizador >>>>> "+puntuacionFinal);
+		return puntuacionFinal;
 	}
 	
 	private String getSalt(String correo) {

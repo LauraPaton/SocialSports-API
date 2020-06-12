@@ -170,6 +170,19 @@ public class Perfil {
 	}
 	
 	@Secured
+	@GET
+	@Path("/bloqueados/{correo}")
+	@Produces({MediaType.APPLICATION_JSON})
+	public Response listaBloqueados(@PathParam("correo") String correo) {
+		
+		usuarioDAO = new UsuarioDAO();
+		ArrayList<Usuario> listaBloqueados = usuarioDAO.listaBloqueados(correo);
+		
+		return Response.status(Status.OK).entity(listaBloqueados).build();
+		
+	}
+	
+	@Secured
 	@POST
 	@Path("/amigos/agregar/{correo}/{correoAmigo}")
 	public Response agregarAmigo(@PathParam("correo") String correo, @PathParam("correoAmigo") String correoAmigo) {
@@ -192,6 +205,32 @@ public class Perfil {
 		System.out.println(correo + " " + correoAmigo);
 		
 		if(usuarioDAO.borrarAmigo(correo, correoAmigo)) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@Secured
+	@POST
+	@Path("/bloquearusuario/{correo}/{correoBloqueado}")
+	public Response bloquearUsuario(@PathParam("correo") String correo, @PathParam("correoBloqueado") String correoBloqueado) {
+		usuarioDAO = new UsuarioDAO();
+		
+		if(usuarioDAO.bloquearUsuario(correo, correoBloqueado)) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@Secured
+	@DELETE
+	@Path("/quitarbloqueo/{correo}/{correoBloqueado}")
+	public Response quitarBloqueo(@PathParam("correo") String correo, @PathParam("correoBloqueado") String correoBloqueado) {
+		usuarioDAO = new UsuarioDAO();
+		
+		if(usuarioDAO.quitarBloqueo(correo, correoBloqueado)) {
 			return Response.status(Status.NO_CONTENT).build();
 		}else {
 			return Response.status(Status.NOT_FOUND).build();
@@ -236,6 +275,29 @@ public class Perfil {
 		}
 		
 		return Response.status(Status.UNAUTHORIZED).build();
+	}
+	
+	/************REPUTACION************/
+	
+	@Secured
+	@GET
+	@Path("/puntuacionparticipante/{correo}")
+	@Produces({MediaType.APPLICATION_JSON})
+	public Response getReputacionParticipante(@PathParam("correo") String correo) {
+		
+		usuarioDAO = new UsuarioDAO();
+		return Response.status(Status.OK).entity(usuarioDAO.calcularPuntuacionParticipante(correo)).build();
+		
+	}
+	
+	@Secured
+	@GET
+	@Path("/puntuacionorganizador/{correo}")
+	@Produces({MediaType.APPLICATION_JSON})
+	public Response getReputacionOrganizador(@PathParam("correo") String correo) {
+		
+		usuarioDAO = new UsuarioDAO();
+		return Response.status(Status.OK).entity(usuarioDAO.calcularPuntuacionOrganizador(correo)).build();
 		
 	}
 }
