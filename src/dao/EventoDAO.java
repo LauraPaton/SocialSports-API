@@ -551,6 +551,7 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		return listaEventos;
 	}
 	
+	
 	public Date StringToDate(String fecha) {
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
         if (fecha!=null && !fecha.isEmpty()) {

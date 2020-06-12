@@ -19,7 +19,6 @@ public class JwtProvider {
 			.setSubject(correo)
 		    .setIssuer("SocialSports.com")
 		    .setIssuedAt(new Date())
-		    //.setExpiration(new Date(System.currentTimeMillis() + 864000)) abría que controlar la expiracion del token
 		    .signWith(Keys.hmacShaKeyFor(secret))
 		    .compact();
 		return jws;

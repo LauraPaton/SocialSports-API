@@ -27,7 +27,6 @@ public class SecurityFilter implements ContainerRequestFilter {
 
         // Valida la cabecera
         if (!isTokenBasedAuthentication(authorizationHeader)) {
-        	System.out.println("1");
             abortWithUnauthorized(requestContext);
             return;
         }
