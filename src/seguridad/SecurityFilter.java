@@ -27,23 +27,21 @@ public class SecurityFilter implements ContainerRequestFilter {
 
         // Valida la cabecera
         if (!isTokenBasedAuthentication(authorizationHeader)) {
+        	System.out.println("1");
             abortWithUnauthorized(requestContext);
+            return;
         }
-        // Extrae el token de la cabecera
-        String token = authorizationHeader.substring(AUTHENTICATION_SCHEME.length()).trim();
-
-        JwtProvider jwtProvider = new JwtProvider();
+        
+    	String token = authorizationHeader.substring(AUTHENTICATION_SCHEME.length()).trim();
+    	
+    	JwtProvider jwtProvider = new JwtProvider();
         if(!jwtProvider.validateToken(token)) {
         	abortWithUnauthorized(requestContext);
+        	return;
         }
-           
     }
 
     private boolean isTokenBasedAuthentication(String authorizationHeader) {
-        /* 
-         * La cabecera authorization no debe ser nula y debe tener el prefijo "Bearer" mas un espacio en blanco 
-         * Ademas no distingue entre mayusculas y minusculas
-         */
         return authorizationHeader != null && authorizationHeader.toLowerCase().startsWith(AUTHENTICATION_SCHEME.toLowerCase() + " ");
     }
 

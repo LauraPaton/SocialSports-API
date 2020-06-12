@@ -496,7 +496,6 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		
 		if(evento.getListaParticipantes() != null) {
 			for(int i = 0; i < evento.getListaParticipantes().size(); i++) {
-				System.out.println(evento.getListaParticipantes().get(i).getEmailUsuario());
 				meterParticipantes(evento.getIdEvento(), evento.getListaParticipantes().get(i).getEmailUsuario());
 			}
 		}
@@ -560,7 +559,7 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
             	System.out.println(fecha+" --- "+date.toString());
                 return date;
             } catch (ParseException e) {
-                e.printStackTrace();
+            	e.printStackTrace();
             }
         }
        return null;
