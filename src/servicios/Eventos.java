@@ -10,6 +10,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -64,6 +65,26 @@ public class Eventos {
 		ArrayList<Evento> listaEventos = new ArrayList<>();
 		listaEventos = eventoDAO.obtenerEventosFinalizados(correo);
 		return Response.status(Status.OK).entity(listaEventos).build();
+	}
+	
+	@Secured
+	@GET
+	@Path("/buscar")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response buscarEventos(@QueryParam("deporte") String deporte, @QueryParam("localidad") String localidad, @QueryParam("fecha") String fecha,
+			@QueryParam("hora") String hora, @QueryParam("reservado") boolean reservado, @QueryParam("reputacion") float reputacion) {
+		
+		if(deporte == null && localidad == null && fecha == null && hora == null && reservado == false && reputacion == -1.0) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}else if(deporte.equals("") && localidad.equals("") && fecha.equals("") && hora.equals("") && reservado == false && reputacion == -1.0) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}else {
+			System.out.println("Se mete");
+			eventoDAO = new EventoDAO();
+			ArrayList<Evento> listaEventos = eventoDAO.buscarEventoFiltrado(deporte, localidad, eventoDAO.StringToDate(fecha), hora, reservado, reputacion);
+			return Response.status(Status.OK).entity(listaEventos).build();
+		}
+		
 	}
 	
 	/******DATOS EVENTO******/
@@ -121,6 +142,23 @@ public class Eventos {
 		eventoDAO = new EventoDAO();
 
 		boolean actualizado = eventoDAO.actualizarMaxParticipantes(idEvento, maxParticipantes);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@Secured
+	@PUT
+	@Path("/terminarevento")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response actualizarTerminarEvento(@FormParam("idEvento") String idEvento, @FormParam("terminado") boolean terminado) {
+		eventoDAO = new EventoDAO();
+		int n = 0;
+		if(terminado) n = 1;
+		
+		boolean actualizado = eventoDAO.actualizarTerminarEvento(idEvento, n);
 		if(actualizado) {
 			return Response.status(Status.NO_CONTENT).build();
 		}else {

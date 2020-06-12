@@ -120,7 +120,7 @@ public class Perfil {
 		
 	}
 	
-	//@Secured
+	@Secured
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/password")

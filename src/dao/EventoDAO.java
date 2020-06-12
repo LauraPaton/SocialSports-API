@@ -99,7 +99,7 @@ public class EventoDAO {
 				ResultSet rs = ps.executeQuery();
 				
 				if(rs.next()) {
-					listaEventos.add(getEvento(id, correo));
+					listaEventos.add(getEvento(id));
 				}
 				
 				rs.close();
@@ -142,7 +142,7 @@ public class EventoDAO {
 				ResultSet rs = ps.executeQuery();
 				
 				if(rs.next()) {
-					listaEventos.add(getEvento(id, correo));
+					listaEventos.add(getEvento(id));
 				}
 				
 				rs.close();
@@ -161,7 +161,7 @@ public class EventoDAO {
 		return listaEventos;
 	}
 	
-	public Evento getEvento(String id, String correo) {
+	public Evento getEvento(String id) {
 		
 		Conexion conn;
 		Evento evento = new Evento();
@@ -257,7 +257,7 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 	}
 	
 	public ArrayList<Usuario> getDescartadosEvento(String idEvento) {
-ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
+		ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		
 		try {
 			Conexion conn = new Conexion();
@@ -267,8 +267,12 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 			ResultSet rs = ps.executeQuery();
 			UsuarioDAO usuarioDAO = new UsuarioDAO();
 			while(rs.next()) {
-				Usuario usuario = usuarioDAO.cogerUsuario(rs.getString(1));
-				listaParticipantes.add(usuario);
+				Usuario usuario = new Usuario();
+				String email = rs.getString(1);
+				if(email != null) {
+					usuario = usuarioDAO.cogerUsuario(email);
+					listaParticipantes.add(usuario);
+				}
 			}
 			
 			ps.close();
@@ -424,6 +428,50 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		return actualizado;
 	}
 	
+	public boolean actualizarTerminarEvento(String idEvento, int terminado) {
+		Conexion conn = null;
+		boolean actualizado = false;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS SET TERMINADO = ? WHERE IDEVENTO = ?");
+			ps.setInt(1,  terminado);
+			ps.setString(2, idEvento);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean eliminarParticipante(String idEvento, String correo) {
+		boolean eliminado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("");
+			
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) eliminado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return eliminado;
+	}
+	
 	public void meterParticipantes(String idEvento, String correo) {
 		try {
 			Conexion conn = new Conexion();
@@ -453,6 +501,55 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 			}
 		}
 		
+	}
+	
+	public ArrayList<Evento> buscarEventoFiltrado(String deporte, String localidad, Date fecha, String hora, boolean reservado, float reputacion){
+		
+		ArrayList<Evento> listaEventos = new ArrayList<>();
+		
+		String SQL = "select idevento from tablaeventos where terminado = 0";
+		
+		if(deporte != null && !deporte.equals("")) {
+			SQL += " and deporte = '" + deporte + "'";
+		}
+		if(localidad != null && !localidad.equals("")) {
+			SQL += " and localidad = '" + localidad + "'";
+		}
+		if(fecha != null) {
+			SQL += " and fechaevento = '" + fecha + "'";
+		}
+		if(hora != null && !hora.equals("")) {
+			SQL += " and horaevento = '" + hora + "'"; 
+		}
+		if(reservado) {
+			SQL += " and instalacionesReservadas = 1";
+		}
+		if(reputacion != -1.0) {
+			SQL += " and deref(organizadorevento).reputacionorganizadorusuario >= '" + reputacion + "'";
+		}
+		
+		System.out.println(SQL);
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ResultSet rs = ps.executeQuery();
+			
+			while(rs.next()) {
+				String idEvento = rs.getString(1);
+				Evento evento = getEvento(idEvento);
+				listaEventos.add(evento);
+			}
+			
+			rs.close();
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return listaEventos;
 	}
 	
 	public Date StringToDate(String fecha) {
