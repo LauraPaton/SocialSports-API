@@ -15,27 +15,43 @@ import seguridad.Validaciones;
 
 public class UsuarioDAO {
 	
-	public boolean existeCorreo(String correo) {
+public boolean registroUsuario(String correo, String contrasena) {
 		
-		boolean existe = false;
 		Conexion conn = null;
+		boolean registrado = false;
 		
 		try {
 			conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT EMAILUSUARIO FROM TABLAUSUARIOS WHERE EMAILUSUARIO = ?");
-			ps.setString(1, correo);
-			ResultSet rs = ps.executeQuery();
-			if(rs.next()) existe = true;
-			rs.close();
-			ps.close();
+			
+			if(!existeCorreo(correo)) {
+				PasswordHash hash = new PasswordHash();
+				String salt = hash.generateSalt();
+				hash.generatePassword(contrasena, salt);
+		        String hashedString = hash.getHash();
+				PreparedStatement insert = conn.getConnection().prepareStatement("INSERT INTO TABLAUSUARIOS (EMAILUSUARIO, PASSWORDUSUARIO, USUARIOSALT, FECHAALTAUSUARIO, LISTAAMIGOS, LISTABLOQUEADOS) values(?,?,?,?, TLISTAPERSONAS(), TLISTAPERSONAS())");
+				insert.setString(1, correo);
+				insert.setString(2, hashedString);
+				insert.setString(3, salt);
+				insert.setDate(4, new java.sql.Date(System.currentTimeMillis()));
+				
+				int affectedRows = insert.executeUpdate();
+				
+				if(affectedRows==1) {
+					registrado = true;
+				}
+				
+				insert.close();
+			}
+			
 			conn.closeConnection();
+		
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
 		
-		return existe;
+		return registrado;
 	}
-	
+
 	public boolean loginUsuario(String correo, String contrasena) {
 		
 		Conexion conn = null;
@@ -73,6 +89,27 @@ public class UsuarioDAO {
 		}
 			
 		return valido;
+	}
+	
+	public boolean existeCorreo(String correo) {
+		
+		boolean existe = false;
+		Conexion conn = null;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT EMAILUSUARIO FROM TABLAUSUARIOS WHERE EMAILUSUARIO = ?");
+			ps.setString(1, correo);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) existe = true;
+			rs.close();
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return existe;
 	}
 	
 	public boolean actualizarNombre(String correo, String nombre) {
@@ -189,7 +226,7 @@ public class UsuarioDAO {
 		return actualizado;
 	}
 	
-public boolean actualizarPassword(String correo, String password) {
+	public boolean actualizarPassword(String correo, String password) {
 		
 		Conexion conn = null;
 		boolean actualizado = false;
@@ -246,24 +283,29 @@ public boolean actualizarPassword(String correo, String password) {
 		
 		boolean agregado = false;
 		
-		try {
-			Conexion conn = new Conexion();
-			String SQL = "insert into "
-					+ "table(select listaamigos from tablausuarios where emailusuario = ?)"
-					+ "(select ref(u) from tablausuarios u where u.emailusuario = ?)";
-			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
-			ps.setString(1, correo);
-			ps.setString(2, correoAmigo);
-			
-			int n = ps.executeUpdate();
-			
-			if(n > 0) agregado = true;
-			
-			ps.close();
-			conn.closeConnection();
-			
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
+		if(!yaEsAmigo(correo, correoAmigo)) {
+			try {
+				Conexion conn = new Conexion();
+				String SQL = "insert into "
+						+ "table(select listaamigos from tablausuarios where emailusuario = ?)"
+						+ "(select ref(u) from tablausuarios u where u.emailusuario = ?)";
+				PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+				ps.setString(1, correo);
+				ps.setString(2, correoAmigo);
+				
+				int n = ps.executeUpdate();
+				
+				if(n > 0) {
+					agregado = true;
+					quitarBloqueo(correo, correoAmigo);
+				}
+				
+				ps.close();
+				conn.closeConnection();
+				
+			} catch (ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return agregado;
@@ -297,24 +339,29 @@ public boolean actualizarPassword(String correo, String password) {
 	public boolean bloquearUsuario(String correo, String correoBloqueado) {
 		boolean bloqueado = false;
 		
-		try {
-			Conexion conn = new Conexion();
-			String SQL = "insert into "
-					+ "table(select listabloqueados from tablausuarios where emailusuario = ?)"
-					+ "(select ref(u) from tablausuarios u where u.emailusuario = ?)";
-			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
-			ps.setString(1, correo);
-			ps.setString(2, correoBloqueado);
-			
-			int n = ps.executeUpdate();
-			
-			if(n > 0) bloqueado = true;
-			
-			ps.close();
-			conn.closeConnection();
-			
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
+		if(!yaEstaBloqueado(correo, correoBloqueado)) {
+			try {
+				Conexion conn = new Conexion();
+				String SQL = "insert into "
+						+ "table(select listabloqueados from tablausuarios where emailusuario = ?)"
+						+ "(select ref(u) from tablausuarios u where u.emailusuario = ?)";
+				PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+				ps.setString(1, correo);
+				ps.setString(2, correoBloqueado);
+				
+				int n = ps.executeUpdate();
+				
+				if(n > 0) {
+					bloqueado = true;
+					borrarAmigo(correo, correoBloqueado);
+				}
+				
+				ps.close();
+				conn.closeConnection();
+				
+			} catch (ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return bloqueado;
@@ -346,41 +393,47 @@ public boolean actualizarPassword(String correo, String password) {
 		return desbloqueado;
 	}
 	
-	public boolean registroUsuario(String correo, String contrasena) {
+	public boolean yaEsAmigo(String correo, String correoAmigo) {
 		
-		Conexion conn = null;
-		boolean registrado = false;
+		boolean yaEsAmigo = false;
 		
 		try {
-			conn = new Conexion();
+			Conexion conn = new Conexion();
+			String SQL = "select * from table(select listaamigos from tablausuarios where emailusuario = ?) a "
+									+ "where deref(a.column_value).emailusuario = ?";
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ps.setString(1, correo);
+			ps.setString(2, correoAmigo);
+			ResultSet rs = ps.executeQuery();
 			
-			if(!existeCorreo(correo)) {
-				PasswordHash hash = new PasswordHash();
-				String salt = hash.generateSalt();
-				hash.generatePassword(contrasena, salt);
-		        String hashedString = hash.getHash();
-				PreparedStatement insert = conn.getConnection().prepareStatement("INSERT INTO TABLAUSUARIOS (EMAILUSUARIO, PASSWORDUSUARIO, USUARIOSALT, FECHAALTAUSUARIO, LISTAAMIGOS, LISTABLOQUEADOS) values(?,?,?,?, TLISTAPERSONAS(), TLISTAPERSONAS())");
-				insert.setString(1, correo);
-				insert.setString(2, hashedString);
-				insert.setString(3, salt);
-				insert.setDate(4, new java.sql.Date(System.currentTimeMillis()));
-				
-				int affectedRows = insert.executeUpdate();
-				
-				if(affectedRows==1) {
-					registrado = true;
-				}
-				
-				insert.close();
-			}
+			if(rs.next()) yaEsAmigo = true;
 			
-			conn.closeConnection();
-		
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
 		
-		return registrado;
+		return yaEsAmigo;
+	}
+	
+	public boolean yaEstaBloqueado(String correo, String correoBloqueado) {
+		boolean yaEstaBloqueado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			String SQL = "select * from table(select listabloqueados from tablausuarios where emailusuario = ?) a "
+									+ "where deref(a.column_value).emailusuario = ?";
+			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
+			ps.setString(1, correo);
+			ps.setString(2, correoBloqueado);
+			ResultSet rs = ps.executeQuery();
+			
+			if(rs.next()) yaEstaBloqueado = true;
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return yaEstaBloqueado;
 	}
 	
 	public Usuario cogerUsuario(String correo){

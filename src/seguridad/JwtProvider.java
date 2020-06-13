@@ -32,7 +32,6 @@ public class JwtProvider {
 		    .build()                    
 		    .parseClaimsJws(token); 
 		
-		    System.out.println(jws);
 			return true;
 			
 		} catch (JwtException e) {

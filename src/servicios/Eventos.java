@@ -3,6 +3,7 @@ package servicios;
 import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -76,8 +77,6 @@ public class Eventos {
 		
 		if(deporte == null && localidad == null && fecha == null && hora == null && reservado == false && reputacion == -1.0) {
 			return Response.status(Status.BAD_REQUEST).build();
-		}else if(deporte.equals("") && localidad.equals("") && fecha.equals("") && hora.equals("") && reservado == false && reputacion == -1.0) {
-			return Response.status(Status.BAD_REQUEST).build();
 		}else {
 			eventoDAO = new EventoDAO();
 			ArrayList<Evento> listaEventos = eventoDAO.buscarEventoFiltrado(deporte, localidad, eventoDAO.StringToDate(fecha), hora, reservado, reputacion);
@@ -90,7 +89,7 @@ public class Eventos {
 	
 	@Secured
 	@PUT
-	@Path("/fecha")
+	@Path("actualizar/fecha")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response actualizarFecha(@FormParam("idEvento") String idEvento, @FormParam("fecha") String fecha) {
 		eventoDAO = new EventoDAO();
@@ -105,7 +104,7 @@ public class Eventos {
 	
 	@Secured
 	@PUT
-	@Path("/hora")
+	@Path("actualizar/hora")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response actualizarHora(@FormParam("idEvento") String idEvento, @FormParam("hora") String hora) {
 		eventoDAO = new EventoDAO();
@@ -120,7 +119,7 @@ public class Eventos {
 	
 	@Secured
 	@PUT
-	@Path("/direccion")
+	@Path("actualizar/direccion")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response actualizarDireccion(@FormParam("idEvento") String idEvento, @FormParam("direccion") String direccion) {
 		eventoDAO = new EventoDAO();
@@ -135,7 +134,7 @@ public class Eventos {
 	
 	@Secured
 	@PUT
-	@Path("/maximoparticipantes")
+	@Path("actualizar/maximoparticipantes")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response actualizarMaxParticipantes(@FormParam("idEvento") String idEvento, @FormParam("maxParticipantes") int maxParticipantes) {
 		eventoDAO = new EventoDAO();
@@ -150,7 +149,7 @@ public class Eventos {
 	
 	@Secured
 	@PUT
-	@Path("/terminarevento")
+	@Path("actualizar/terminado")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public Response actualizarTerminarEvento(@FormParam("idEvento") String idEvento, @FormParam("terminado") boolean terminado) {
 		eventoDAO = new EventoDAO();
@@ -163,5 +162,133 @@ public class Eventos {
 		}else {
 			return Response.status(Status.NOT_FOUND).build();
 		}
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("actualizar/reserva")
+	public Response actualizarReserva(@FormParam("idEvento") String idEvento, @FormParam("reserva") boolean reserva) {
+		System.out.println(idEvento + " " + reserva);
+		eventoDAO = new EventoDAO();
+		boolean actualizado = eventoDAO.actualizarReserva(idEvento, reserva);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("actualizar/coste")
+	public Response actualizarCoste(@FormParam("idEvento") String idEvento, @FormParam("coste") float coste) {
+		System.out.println(idEvento + " " + coste);
+		eventoDAO = new EventoDAO();
+		boolean actualizado = eventoDAO.actualizarCoste(idEvento, coste);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("actualizar/precio")
+	public Response actualizarPrecio(@FormParam("idEvento") String idEvento, @FormParam("precio") float precio) {
+		System.out.println(idEvento + " " + precio);
+		eventoDAO = new EventoDAO();
+		boolean actualizado = eventoDAO.actualizarPrecio(idEvento, precio);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("actualizar/comentarios")
+	public Response actualizarComentarios(@FormParam("idEvento") String idEvento, @FormParam("comentarios") String comentarios) {
+		System.out.println(idEvento + " " + comentarios);
+		eventoDAO = new EventoDAO();
+		boolean actualizado = eventoDAO.actualizarComentarios(idEvento, comentarios);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("actualizar/edadminima")
+	public Response actualizarEdadMinima(@FormParam("idEvento") String idEvento, @FormParam("edad") int edad) {
+		System.out.println(idEvento + " " + edad);
+		eventoDAO = new EventoDAO();
+		boolean actualizado = eventoDAO.actualizarEdadMinima(idEvento, edad);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("actualizar/edadmaxima")
+	public Response actualizarEdadMaxima(@FormParam("idEvento") String idEvento, @FormParam("edad") int edad) {
+		System.out.println(idEvento + " " + edad);
+		eventoDAO = new EventoDAO();
+		boolean actualizado = eventoDAO.actualizarEdadMaxima(idEvento, edad);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("actualizar/genero")
+	public Response actualizarGenero(@FormParam("idEvento") String idEvento, @FormParam("genero") String genero) {
+		System.out.println(idEvento + " " + genero);
+		eventoDAO = new EventoDAO();
+		boolean actualizado = eventoDAO.actualizarGenero(idEvento, genero);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("actualizar/reputacion")
+	public Response actualizarReputacion(@FormParam("idEvento") String idEvento, @FormParam("reputacion") float reputacion) {
+		System.out.println(idEvento + " " + reputacion);
+		eventoDAO = new EventoDAO();
+		boolean actualizado = eventoDAO.actualizarReputacion(idEvento, reputacion);
+		if(actualizado) {
+			return Response.status(Status.NO_CONTENT).build();
+		}else {
+			return Response.status(Status.NOT_FOUND).build();
+		}
+	}
+	
+	@DELETE
+	@Path("eliminarparticipante/{idEvento}/{correo}")
+	public Response eliminarParticipante(@PathParam("idEvento") String idEvento, @PathParam("correo") String correo) {
+		return null;
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Path("insertarparticipante")
+	public Response insertarParticipante(@FormParam("idEvento") String idEvento, @FormParam("correo") String correo) {
+		System.out.println(idEvento + " " + correo);
+		eventoDAO = new EventoDAO();
+		eventoDAO.meterParticipantes(idEvento, correo);
+		return Response.status(Status.NO_CONTENT).build();
 	}
 }

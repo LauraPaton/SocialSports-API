@@ -314,7 +314,7 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 	
 	public Usuario getOrganizador(String idEvento) {
 		
-		Usuario organizador = null;
+		Usuario organizador = new Usuario();
 		
 		try {
 			Conexion conn = new Conexion();
@@ -324,7 +324,7 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 			
 			if(rsOrganizador.next()) {
 				UsuarioDAO usuarioDAO = new UsuarioDAO();
-				organizador = usuarioDAO.cogerUsuario(rsOrganizador.getObject(1).toString());
+				organizador = usuarioDAO.cogerUsuario(rsOrganizador.getString(1));
 			}
 			
 			rsOrganizador.close();
@@ -451,23 +451,187 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		return actualizado;
 	}
 	
-	public boolean eliminarParticipante(String idEvento, String correo) {
-		boolean eliminado = false;
+	public boolean actualizarReserva(String idEvento, boolean reserva) {
+		int n = 0;
+		if(reserva) n = 1;
+		
+		boolean actualizado = false;
 		
 		try {
 			Conexion conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("");
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS SET INSTALACIONESRESERVADAS = ? WHERE IDEVENTO = ?");
+			ps.setInt(1,  n);
+			ps.setString(2, idEvento);
 			
+			int x = ps.executeUpdate();
 			
-			int n = ps.executeUpdate();
-			
-			if(n > 0) eliminado = true;
+			if(x > 0) actualizado = true;
 			
 			ps.close();
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarCoste(String idEvento, float coste) {
+		boolean actualizado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS SET COSTEEVENTO = ? WHERE IDEVENTO = ?");
+			ps.setFloat(1,  coste);
+			ps.setString(2, idEvento);
+			
+			int x = ps.executeUpdate();
+			
+			if(x > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarPrecio(String idEvento, float precio) {
+		boolean actualizado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS SET PRECIOPORPARTICIPANTE = ? WHERE IDEVENTO = ?");
+			ps.setFloat(1,  precio);
+			ps.setString(2, idEvento);
+			
+			int x = ps.executeUpdate();
+			
+			if(x > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarComentarios(String idEvento, String comentarios) {
+		boolean actualizado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS SET COMENTARIOS = ? WHERE IDEVENTO = ?");
+			ps.setString(1,  comentarios);
+			ps.setString(2, idEvento);
+			
+			int x = ps.executeUpdate();
+			
+			if(x > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarEdadMinima(String idEvento, int edad) {
+		boolean actualizado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS E SET E.REQUISITOS.EDADMINIMA = ? WHERE IDEVENTO = ?");
+			ps.setInt(1, edad);
+			ps.setString(2, idEvento);
+			
+			int x = ps.executeUpdate();
+			
+			if(x > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarEdadMaxima(String idEvento, int edad) {
+		boolean actualizado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS E SET E.REQUISITOS.EDADMAXIMA = ? WHERE IDEVENTO = ?");
+			ps.setInt(1, edad);
+			ps.setString(2, idEvento);
+			
+			int x = ps.executeUpdate();
+			
+			if(x > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarGenero(String idEvento, String genero) {
+		boolean actualizado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS E SET E.REQUISITOS.REQUISITODEGENERO = ? WHERE IDEVENTO = ?");
+			ps.setString(1, genero);
+			ps.setString(2, idEvento);
+			
+			int x = ps.executeUpdate();
+			
+			if(x > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean actualizarReputacion(String idEvento, float reputacion) {
+		boolean actualizado = false;
+		
+		try {
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAEVENTOS E SET E.REQUISITOS.REPUTACIONNECESARIA = ? WHERE IDEVENTO = ?");
+			ps.setFloat(1, reputacion);
+			ps.setString(2, idEvento);
+			
+			int x = ps.executeUpdate();
+			
+			if(x > 0) actualizado = true;
+			
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	public boolean eliminarParticipante(String idEvento, String correo) {
+		boolean eliminado = false;
 		
 		return eliminado;
 	}
@@ -550,7 +714,6 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		
 		return listaEventos;
 	}
-	
 	
 	public Date StringToDate(String fecha) {
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");

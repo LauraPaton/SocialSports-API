@@ -38,7 +38,8 @@ public class Evento{
     }
 
     public void setOrganizadorEvento(Usuario organizadorEvento) {
-        this.organizadorEvento = organizadorEvento;
+    	if(organizadorEvento == null) this.organizadorEvento = new Usuario();
+    	else this.organizadorEvento = organizadorEvento;
     }
 
     public String getDeporte() {
@@ -46,7 +47,8 @@ public class Evento{
     }
 
     public void setDeporte(String deporte) {
-        this.deporte = deporte;
+    	if(deporte == null) this.deporte = "";
+    	else this.deporte = deporte;
     }
 
     public String getLocalidad() {
