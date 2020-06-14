@@ -372,9 +372,8 @@ public boolean registroUsuario(String correo, String contrasena) {
 		
 		try {
 			Conexion conn = new Conexion();
-			String SQL = "delete from "
-					+ "table(select listabloqueados from tablausuarios where emailusuario = ?) a "
-					+ "where deref(a.COLUMN_VALUE).emailusuario = ?)";
+			String SQL = "delete from table(select listabloqueados from tablausuarios where emailusuario = ?) a "
+					+ "where deref(a.COLUMN_VALUE).emailusuario = ?";
 			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
 			ps.setString(1, correo);
 			ps.setString(2, correoBloqueado);
@@ -459,9 +458,9 @@ public boolean registroUsuario(String correo, String contrasena) {
 				if(fechaNacimiento != null) usuario.setFechaNacimientoUsuario(fechaNacimiento.toString());
 				java.util.Date fechaAlta = rs.getDate("FECHAALTAUSUARIO");
 				if(fechaAlta != null) usuario.setFechaAltaUsuario(fechaAlta.toString());
-				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
 				usuario.setReputacionOrganizadorUsuario(rs.getFloat("REPUTACIONORGANIZADORUSUARIO"));
-				usuario.setFotoPerfilUsuario(null);
+				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
+				usuario.setFotoPerfilUsuario("");
 			}
 			
 			rs.close();
@@ -575,7 +574,7 @@ public boolean registroUsuario(String correo, String contrasena) {
 		return listaBloqueados;
 	}
 	
-	public Float calcularPuntuacionParticipante(String correo) {
+public Float calcularPuntuacionParticipante(String correo) {
 		
 		Conexion conn = null;
 		int vecesPuntuado = 0;
@@ -599,12 +598,17 @@ public boolean registroUsuario(String correo, String contrasena) {
 			
 			ps.close();
 			rs.close();
+		
+			System.out.println("Puntuación como Participante >>>>> "+puntuacionFinal);
+			actualizarPuntuacionParticipante(conn,correo,puntuacionFinal);
+			
+			conn.getConnection().setAutoCommit(false);
+			conn.getConnection().commit();
+			conn.getConnection().setAutoCommit(true);
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println("Puntuación como Participante >>>>> "+puntuacionFinal);
 		return puntuacionFinal;
 	}
 	
@@ -642,14 +646,60 @@ public boolean registroUsuario(String correo, String contrasena) {
 				puntuacionFinal = 4f;
 			else
 				puntuacionFinal = sumaPuntuaciones / sumaVecesPuntuado;
+		
+			System.out.println("Puntuación como Organizador >>>>> "+puntuacionFinal);
+			actualizarPuntuacionOrganizador(conn,correo,puntuacionFinal);
 			
+			conn.getConnection().setAutoCommit(false);
+			conn.getConnection().commit();
+			conn.getConnection().setAutoCommit(true);
 			conn.closeConnection();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println("Puntuación como Organizador >>>>> "+puntuacionFinal);
 		return puntuacionFinal;
+	}
+	
+	
+	public boolean actualizarPuntuacionParticipante(Conexion conn, String correo, Float puntuacion) {
+		boolean actualizado = false;
+		
+		try {
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET REPUTACIONPARTICIPANTEUSUARIO = ? WHERE EMAILUSUARIO = ?");
+			ps.setFloat(1, puntuacion);
+			ps.setString(2, correo);
+			int numFilas = ps.executeUpdate();
+			
+			if (numFilas > 0)
+				actualizado = true;
+			
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	
+	public boolean actualizarPuntuacionOrganizador(Conexion conn, String correo, Float puntuacion) {
+		boolean actualizado = false;
+		
+		try {
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET REPUTACIONORGANIZADORUSUARIO = ? WHERE EMAILUSUARIO = ?");
+			ps.setFloat(1, puntuacion);
+			ps.setString(2, correo);
+			int numFilas = ps.executeUpdate();
+			
+			if (numFilas > 0)
+				actualizado = true;
+			
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
 	}
 	
 	private String getSalt(String correo) {

@@ -192,8 +192,8 @@ public class EventoDAO {
 				evento.setOrganizadorEvento(getOrganizador(id));
 				setRequisitos(evento, id);
 				evento.setListaParticipantes(getParticipantesEvento(id));
-				evento.setListaDescartados(getSolicitantesEvento(id));
-				evento.setListaSolicitantes(getDescartadosEvento(id));
+				evento.setListaDescartados(getDescartadosEvento(id));
+				evento.setListaSolicitantes(getSolicitantesEvento(id));
 			}
 			
 			rsEventoPendiente.close();
@@ -630,9 +630,68 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		return actualizado;
 	}
 	
+	public boolean eliminarEvento(String idEvento) {
+		boolean eliminado = false;
+		try {
+			Conexion conn = new Conexion();
+			String sql = "DELETE FROM TABLAEVENTOS WHERE IDEVENTO = ?";
+			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
+			ps.setString(1, idEvento);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) eliminado = true;
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		return eliminado;
+	}
+	
 	public boolean eliminarParticipante(String idEvento, String correo) {
 		boolean eliminado = false;
-		
+		try {
+			Conexion conn = new Conexion();
+			String sql = "DELETE FROM TABLE(SELECT LISTAPARTICIPANTE FROM TABLAEVENTOS WHERE IDEVENTO = ?) A WHERE DEREF(A.COLUMN_VALUE).EMAILUSUARIO = ?";
+			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
+			ps.setString(1, idEvento);
+			ps.setString(2, correo);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) eliminado = true;
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		return eliminado;
+	}
+	
+	public boolean eliminarSolicitante(String idEvento, String correo) {
+		boolean eliminado = false;
+		try {
+			Conexion conn = new Conexion();
+			String sql = "DELETE FROM TABLE(SELECT LISTASOLICITANTES FROM TABLAEVENTOS WHERE IDEVENTO = ?) A WHERE DEREF(A.COLUMN_VALUE).EMAILUSUARIO = ?";
+			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
+			ps.setString(1, idEvento);
+			ps.setString(2, correo);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) eliminado = true;
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
 		return eliminado;
 	}
 	
@@ -640,6 +699,30 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		try {
 			Conexion conn = new Conexion();
 			String sql = "insert into table(select listaParticipantes from tablaeventos where idevento = ?)(select ref(u) from tablausuarios u where u.emailusuario = ?)";
+			PreparedStatement ps = null;
+			
+			ps = conn.getConnection().prepareStatement(sql);
+			ps.setString(1, idEvento);
+			ps.setString(2, correo);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) {
+				eliminarSolicitante(idEvento, correo);
+			}
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void meterSolicitantes(String idEvento, String correo) {
+		try {
+			Conexion conn = new Conexion();
+			String sql = "insert into table(select listasolicitantes from tablaeventos where idevento = ?)(select ref(u) from tablausuarios u where u.emailusuario = ?)";
 			PreparedStatement ps = null;
 			
 			ps = conn.getConnection().prepareStatement(sql);
@@ -713,6 +796,34 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		}
 		
 		return listaEventos;
+	}
+	
+	public boolean haSidoPuntuado(String idEvento) {
+		
+		boolean rated = false;
+		Conexion conn = null;
+		int vecesPuntuadoEvento = 0;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT COUNT(CALIFICACION) FROM TABLAPUNTUACIONESEVENTOS WHERE IDEVENTOFINALIZADO = ?");
+			ps.setString(1, idEvento);
+			ResultSet rs = ps.executeQuery();
+			
+			if(rs.next())
+				vecesPuntuadoEvento = rs.getInt(1);
+			
+			if (vecesPuntuadoEvento > 0)
+				rated = true;
+			
+			rs.close();
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return rated;
 	}
 	
 	public Date StringToDate(String fecha) {

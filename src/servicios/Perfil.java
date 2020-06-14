@@ -239,33 +239,36 @@ public class Perfil {
 	
 	/***********IMAGENES***********/
 	
-	@Secured
-	@POST
-	@Path("/imagenes/subir")
-	@Consumes(MediaType.MULTIPART_FORM_DATA)  
+	//@Secured
+	@PUT
+	@Path("/imagenes/subir/{correo}")	
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response uploadFile(  
             @FormDataParam("file") InputStream uploadedInputStream,  
-            @FormDataParam("file") FormDataContentDisposition fileDetail) {
-		
+            @FormDataParam("file") FormDataContentDisposition fileDetail, @PathParam("correo") String correo) {
+
+		System.out.println(fileDetail.getFileName());
 		ImagenesDAO imagenesDAO = new ImagenesDAO();
-		boolean subida = imagenesDAO.uploadImage(uploadedInputStream);
-		
+		boolean subida = imagenesDAO.uploadImage(uploadedInputStream, correo);
+
 		if(subida){
-				return Response.status(Status.OK).build();
+				return Response
+							.status(Status.OK)
+							.build();
 		}
 		
 		return Response.status(Status.CONFLICT).build();
 
 	}
 	
-	@Secured
+	//@Secured
 	@GET
-	@Path("/imagenes/descargar")
+	@Path("/imagenes/descargar/{correo}")
 	@Produces({"image/png", "image/jpeg", "image/jpg"})
-	public Response downloadFile() {
+	public Response downloadFile(@PathParam("correo") String correo) {
 		
 		ImagenesDAO imagenesDAO = new ImagenesDAO();
-		InputStream is = imagenesDAO.downloadImage();
+		InputStream is = imagenesDAO.downloadImage(correo);
 		
 		if(is != null) {
 			return Response
@@ -274,7 +277,7 @@ public class Perfil {
 					.build();
 		}
 		
-		return Response.status(Status.UNAUTHORIZED).build();
+		return Response.status(Status.NOT_FOUND).build();
 	}
 	
 	/************REPUTACION************/
@@ -297,7 +300,8 @@ public class Perfil {
 	public Response getReputacionOrganizador(@PathParam("correo") String correo) {
 		
 		usuarioDAO = new UsuarioDAO();
-		return Response.status(Status.OK).entity(usuarioDAO.calcularPuntuacionOrganizador(correo)).build();
+		return Response.status(Status.OK).entity("Message: " + usuarioDAO.calcularPuntuacionOrganizador(correo)).build();
 		
 	}
+	
 }
