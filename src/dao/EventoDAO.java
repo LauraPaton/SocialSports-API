@@ -15,9 +15,8 @@ import modelo.Usuario;
 
 public class EventoDAO {
 	
-	public boolean crearEvento(Evento evento) {
-		
-		boolean creado = false;
+	public String crearEvento(Evento evento) {
+		String id = generarId();
 		Conexion conn;
 		
 		try {
@@ -38,7 +37,7 @@ public class EventoDAO {
 					+ "comentarios, terminado, requisitos, listaSolicitantes, listaDescartados, listaParticipantes) "
 					+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?,?, TRequisito(?,?,?,?), TLISTAPERSONAS(), TLISTAPERSONAS(), TLISTAPERSONAS())";
 			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
-			ps.setString(1, evento.getIdEvento());
+			ps.setString(1, generarId());
 			ps.setRef(2, ref);
 			ps.setString(3, evento.getDeporte());
 			ps.setString(4, evento.getLocalidad());
@@ -63,7 +62,7 @@ public class EventoDAO {
 			
 			int n = ps.executeUpdate();
 			
-			if(n > 0) creado = true;
+			if(n == 0) id = "-1";
 
 			conn.closeConnection();
 			
@@ -71,7 +70,7 @@ public class EventoDAO {
 			e.printStackTrace();
 		}
 		
-		return creado;
+		return id;
 	}
 	
 	public ArrayList<Evento> obtenerEventosPendientes(String correo) {
@@ -655,7 +654,7 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		boolean eliminado = false;
 		try {
 			Conexion conn = new Conexion();
-			String sql = "DELETE FROM TABLE(SELECT LISTAPARTICIPANTE FROM TABLAEVENTOS WHERE IDEVENTO = ?) A WHERE DEREF(A.COLUMN_VALUE).EMAILUSUARIO = ?";
+			String sql = "DELETE FROM TABLE(SELECT LISTAPARTICIPANTES FROM TABLAEVENTOS WHERE IDEVENTO = ?) A WHERE DEREF(A.COLUMN_VALUE).EMAILUSUARIO = ?";
 			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
 			ps.setString(1, idEvento);
 			ps.setString(2, correo);
@@ -824,6 +823,27 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		}
 		
 		return rated;
+	}
+	
+	public String generarId() {
+		int id = 1;
+		
+		try {
+			Conexion conexion = new Conexion();
+			PreparedStatement ps = conexion.getConnection().prepareStatement("SELECT IDEVENTO FROM TABLAEVENTOS ORDER BY 1 DESC");
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				id = Integer.parseInt(rs.getString(1)) + 1;
+			}
+			rs.close();
+			ps.close();
+			conexion.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return String.valueOf(id);
+
 	}
 	
 	public Date StringToDate(String fecha) {

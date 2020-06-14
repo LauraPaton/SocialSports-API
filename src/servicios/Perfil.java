@@ -300,7 +300,7 @@ public class Perfil {
 	public Response getReputacionOrganizador(@PathParam("correo") String correo) {
 		
 		usuarioDAO = new UsuarioDAO();
-		return Response.status(Status.OK).entity("Message: " + usuarioDAO.calcularPuntuacionOrganizador(correo)).build();
+		return Response.status(Status.OK).entity(usuarioDAO.calcularPuntuacionOrganizador(correo)).build();
 		
 	}
 	

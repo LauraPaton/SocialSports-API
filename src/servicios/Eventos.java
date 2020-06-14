@@ -33,8 +33,9 @@ public class Eventos {
 	public Response crearEvento(Evento evento) {
 		eventoDAO = new EventoDAO();
 		System.out.println(evento.toString());
-	
-		if(eventoDAO.crearEvento(evento)) {
+		String id = eventoDAO.crearEvento(evento);
+		if(!id.equals("-1")) {
+			evento.setIdEvento(id);
 			eventoDAO.enviarInvitaciones(evento); 
 			return Response.status(Status.CREATED).entity(evento).build();
 		}
@@ -319,6 +320,18 @@ public class Eventos {
 		eventoDAO = new EventoDAO();
 		eventoDAO.eliminarSolicitante(idEvento, correo);
 		return Response.status(Status.NO_CONTENT).build();
+	}
+	
+	@Secured
+	@GET
+	@Path("/hasidopuntuado/{idevento}")
+	@Produces({MediaType.TEXT_PLAIN})
+	public Response getHaSidoPuntuado(@PathParam("idevento") String idevento) {
+		
+		eventoDAO = new EventoDAO();
+		boolean b = eventoDAO.haSidoPuntuado(idevento);
+		return Response.status(Status.OK).entity(b).build();
+		
 	}
 
 }
