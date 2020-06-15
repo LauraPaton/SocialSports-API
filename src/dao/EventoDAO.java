@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import modelo.Evento;
+import modelo.PuntuacionEvento;
 import modelo.Requisitos;
 import modelo.Usuario;
 
@@ -17,6 +18,7 @@ public class EventoDAO {
 	
 	public String crearEvento(Evento evento) {
 		String id = generarId();
+		System.out.println(id);
 		Conexion conn;
 		
 		try {
@@ -694,6 +696,29 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		return eliminado;
 	}
 	
+	public void bloquearSolicitud(String idEvento, String correo) {
+		try {
+			Conexion conn = new Conexion();
+			String sql = "DELETE FROM TABLE(SELECT LISTADESCARTADOS FROM TABLAEVENTOS WHERE IDEVENTO = ?) A WHERE DEREF(A.COLUMN_VALUE).EMAILUSUARIO = ?";
+			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
+			ps.setString(1, idEvento);
+			ps.setString(2, correo);
+			
+			int n = ps.executeUpdate();
+			
+			if(n > 0) {
+				eliminarParticipante(idEvento, correo);
+			}
+			
+			ps.close();
+			conn.closeConnection();
+			
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+
+	}
+	
 	public void meterParticipantes(String idEvento, String correo) {
 		try {
 			Conexion conn = new Conexion();
@@ -773,8 +798,6 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 			SQL += " and deref(organizadorevento).reputacionorganizadorusuario >= '" + reputacion + "'";
 		}
 		
-		System.out.println(SQL);
-		
 		try {
 			Conexion conn = new Conexion();
 			PreparedStatement ps = conn.getConnection().prepareStatement(SQL);
@@ -783,7 +806,9 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 			while(rs.next()) {
 				String idEvento = rs.getString(1);
 				Evento evento = getEvento(idEvento);
-				listaEventos.add(evento);
+				if(evento.getOrganizadorEvento() != null) {
+					listaEventos.add(evento);
+				}
 			}
 			
 			rs.close();
@@ -797,7 +822,7 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		return listaEventos;
 	}
 	
-	public boolean haSidoPuntuado(String idEvento) {
+public boolean haSidoPuntuado(String idEvento, String email) {
 		
 		boolean rated = false;
 		Conexion conn = null;
@@ -805,8 +830,9 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		
 		try {
 			conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT COUNT(CALIFICACION) FROM TABLAPUNTUACIONESEVENTOS WHERE IDEVENTOFINALIZADO = ?");
+			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT COUNT(CALIFICACION) FROM TABLAPUNTUACIONESPARTICIPANTES WHERE IDEVENTOFINALIZADO = ? AND EMAILUSUARIOEMISOR = ?");
 			ps.setString(1, idEvento);
+			ps.setString(2, email);
 			ResultSet rs = ps.executeQuery();
 			
 			if(rs.next())
@@ -821,12 +847,56 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
+		System.out.println("Veces puntuado >>> "+vecesPuntuadoEvento);
 		
 		return rated;
 	}
 	
+	
+	public boolean insertarPuntuacionEvento(PuntuacionEvento puntuacion) {
+
+		boolean insertado = false;
+		Conexion conn = null;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("INSERT INTO TABLAPUNTUACIONESEVENTOS VALUES(?,?,?)");
+			ps.setString(1, puntuacion.getEmailUsuarioEmisor());
+			ps.setString(2, puntuacion.getIdEventoFinalizado());
+			ps.setFloat(3, puntuacion.getCalificacion());
+			int filasAfectadas = ps.executeUpdate();
+			
+			if (filasAfectadas > 0)
+				insertado = true;				
+			
+			ps.close();
+			
+			conn.hacerCommit();
+			
+			PreparedStatement ps2 = conn.getConnection().prepareStatement("SELECT DEREF(ORGANIZADOREVENTO).EMAILUSUARIO FROM TABLAEVENTOS WHERE IDEVENTO = ?");
+			ps2.setString(1, puntuacion.getIdEventoFinalizado());
+			ResultSet rs = ps2.executeQuery();
+			
+			if (rs.next()) {
+				UsuarioDAO user = new UsuarioDAO();
+				user.calcularPuntuacionOrganizador(rs.getString(1));
+			}
+
+			ps2.close();
+			conn.hacerCommit();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return insertado;
+	}
+	
+	
 	public String generarId() {
 		int id = 1;
+		String cadenaBase = "000000000", idStr;
+		int longitudBase = cadenaBase.length(), longitudId;
 		
 		try {
 			Conexion conexion = new Conexion();
@@ -842,7 +912,12 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 			e.printStackTrace();
 		}
 		
-		return String.valueOf(id);
+		idStr = Integer.toString(id);
+		longitudId = idStr.length();
+		
+		idStr = cadenaBase.substring(0,(longitudBase-longitudId))+idStr;
+		
+		return idStr;
 
 	}
 	

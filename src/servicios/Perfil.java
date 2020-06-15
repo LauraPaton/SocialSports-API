@@ -21,7 +21,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import dao.ImagenesDAO;
 import dao.UsuarioDAO;
-
+import modelo.PuntuacionParticipante;
 import modelo.Usuario;
 import seguridad.Secured;
 
@@ -38,7 +38,6 @@ public class Perfil {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/nombre")
 	public Response actualizarNombre(@FormParam("correo") String correo, @FormParam("nombre") String nombre) {
-		
 		usuarioDAO = new UsuarioDAO();
 		
 		boolean actualizado = usuarioDAO.actualizarNombre(correo, nombre);
@@ -47,7 +46,6 @@ public class Perfil {
 		}else {
 			return Response.status(Status.NOT_FOUND).build();
 		}
-		
 	}
 	
 	@Secured
@@ -261,25 +259,6 @@ public class Perfil {
 
 	}
 	
-	//@Secured
-	@GET
-	@Path("/imagenes/descargar/{correo}")
-	@Produces({"image/png", "image/jpeg", "image/jpg"})
-	public Response downloadFile(@PathParam("correo") String correo) {
-		
-		ImagenesDAO imagenesDAO = new ImagenesDAO();
-		InputStream is = imagenesDAO.downloadImage(correo);
-		
-		if(is != null) {
-			return Response
-					.status(Status.OK)
-					.entity(is)
-					.build();
-		}
-		
-		return Response.status(Status.NOT_FOUND).build();
-	}
-	
 	/************REPUTACION************/
 	
 	@Secured
@@ -304,4 +283,17 @@ public class Perfil {
 		
 	}
 	
+	@Secured
+	@POST
+	@Path("/insertarpuntuacion")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces({MediaType.TEXT_PLAIN})
+	public Response insertarPuntuacionParticipante(PuntuacionParticipante puntuacion) {
+		
+		usuarioDAO = new UsuarioDAO();
+		if (usuarioDAO.insertarPuntuacionParticipante(puntuacion))
+			return Response.status(Status.CREATED).entity(puntuacion.getEmailUsuarioPuntuado()).build();
+		else
+			return Response.status(Status.BAD_REQUEST).build();
+	}
 }

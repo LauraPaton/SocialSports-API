@@ -1,6 +1,13 @@
 package dao;
 
 import java.util.Date;
+
+import org.apache.commons.io.FileUtils;
+
+import java.util.Base64;
+
+import java.io.File;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import modelo.Evento;
+import modelo.PuntuacionParticipante;
 import modelo.Usuario;
 import seguridad.PasswordHash;
 import seguridad.Validaciones;
@@ -448,8 +456,7 @@ public boolean registroUsuario(String correo, String contrasena) {
 			ResultSet rs = ps.executeQuery();
 			
 			if(rs.next()) {
-				usuario.setEmailUsuario(rs.getNString("EMAILUSUARIO"));
-				usuario.setPasswordUsuario(null);
+				usuario.setEmailUsuario(rs.getString("EMAILUSUARIO"));
 				usuario.setNombreUsuario(rs.getString("NOMBREUSUARIO"));
 				usuario.setApellidosUsuario(rs.getString("APELLIDOSUSUARIO"));
 				usuario.setGeneroUsuario(rs.getString("GENEROUSUARIO"));
@@ -460,7 +467,8 @@ public boolean registroUsuario(String correo, String contrasena) {
 				if(fechaAlta != null) usuario.setFechaAltaUsuario(fechaAlta.toString());
 				usuario.setReputacionOrganizadorUsuario(rs.getFloat("REPUTACIONORGANIZADORUSUARIO"));
 				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
-				usuario.setFotoPerfilUsuario("");
+				//usuario.setFotoPerfilUsuario(getFotoEnBase64(usuario.getEmailUsuario()));
+				
 			}
 			
 			rs.close();
@@ -471,6 +479,27 @@ public boolean registroUsuario(String correo, String contrasena) {
 		}
 		
 		return usuario;
+	}
+	
+	public String getFotoEnBase64(String name) {
+		String encoded = "";
+		try {
+			File fileJPG = new File("C:\\Users\\0xNea\\Pictures\\prueba\\" + name.replace(".", "") + ".jpg");
+			File filePNG = new File("C:\\Users\\0xNea\\Pictures\\prueba\\" + name.replace(".", "") + ".png");
+			
+			if(fileJPG.exists()) {
+				System.out.println(name + "jpg");
+				byte[] fileContent = FileUtils.readFileToByteArray(fileJPG);
+				encoded = Base64.getEncoder().encodeToString(fileContent);
+			}else if (filePNG.exists()) {
+				System.out.println("png");
+				byte[] fileContent = FileUtils.readFileToByteArray(filePNG);
+				encoded = Base64.getEncoder().encodeToString(fileContent);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return encoded;
 	}
 	
 	public ArrayList<Usuario> listaAmigos(String correo) {
@@ -484,7 +513,9 @@ public boolean registroUsuario(String correo, String contrasena) {
 					+ "deref(a.COLUMN_VALUE).NOMBREUSUARIO,"
 					+ "deref(a.COLUMN_VALUE).APELLIDOSUSUARIO,"
 					+ "deref(a.COLUMN_VALUE).GENEROUSUARIO,"
-					+ "deref(a.COLUMN_VALUE).FECHANACIMIENTOUSUARIO"
+					+ "deref(a.COLUMN_VALUE).FECHANACIMIENTOUSUARIO, "
+					+ "deref(a.COLUMN_VALUE).REPUTACIONORGANIZADORUSUARIO, "
+					+ "deref(a.COLUMN_VALUE).REPUTACIONPARTICIPANTEUSUARIO "
 					+ " from table(select u.listaamigos from tablausuarios u where u.emailusuario = ?) a";
 			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
 			ps.setString(1, correo);
@@ -501,11 +532,16 @@ public boolean registroUsuario(String correo, String contrasena) {
 				String apellidos = rs.getString(3);
 				String genero = rs.getString(4);
 				Date date = rs.getDate(5);
+				float reputacionOrganizador = rs.getFloat(6);
+				float reputacionParticipante = rs.getFloat(7);
 				
 				amigo.setEmailUsuario(email);
 				amigo.setNombreUsuario(nombre);
 				amigo.setApellidosUsuario(apellidos);
 				amigo.setGeneroUsuario(genero);
+				amigo.setReputacionOrganizadorUsuario(reputacionOrganizador);
+				amigo.setReputacionParticipanteUsuario(reputacionParticipante);
+				//amigo.setFotoPerfilUsuario(getFotoEnBase64(amigo.getEmailUsuario()));
 				if(date != null) amigo.setFechaNacimientoUsuario(date.toString());
 				
 				if(email != null) {
@@ -574,93 +610,6 @@ public boolean registroUsuario(String correo, String contrasena) {
 		return listaBloqueados;
 	}
 	
-public Float calcularPuntuacionParticipante(String correo) {
-		
-		Conexion conn = null;
-		int vecesPuntuado = 0;
-		float sumaPuntuaciones = 0, puntuacionFinal = 0;
-		
-		try {
-			conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT COUNT(CALIFICACION), SUM(CALIFICACION) FROM TABLAPUNTUACIONESPARTICIPANTES WHERE EMAILUSUARIOPUNTUADO = ?");
-			ps.setString(1, correo);
-			ResultSet rs = ps.executeQuery();
-			
-			if (rs.next()) {
-				vecesPuntuado = rs.getInt(1);
-				sumaPuntuaciones = rs.getFloat(2);
-			}
-			
-			if (vecesPuntuado == 0)
-				puntuacionFinal = 4f;
-			else
-				puntuacionFinal = sumaPuntuaciones / vecesPuntuado;
-			
-			ps.close();
-			rs.close();
-		
-			System.out.println("Puntuación como Participante >>>>> "+puntuacionFinal);
-			actualizarPuntuacionParticipante(conn,correo,puntuacionFinal);
-			
-			conn.getConnection().setAutoCommit(false);
-			conn.getConnection().commit();
-			conn.getConnection().setAutoCommit(true);
-			conn.closeConnection();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return puntuacionFinal;
-	}
-	
-	
-	public Float calcularPuntuacionOrganizador(String correo) {
-		
-		EventoDAO eventoDAO = new EventoDAO();
-		ArrayList<Evento> listaEventosTerminados = eventoDAO.obtenerEventosFinalizados(correo);
-		Conexion conn = null;
-		float sumaPuntuaciones = 0, puntuacionFinal = 0;
-		int vecesPuntuado = 0, sumaVecesPuntuado = 0;
-		
-		try {
-			conn = new Conexion();
-			for (Evento evento: listaEventosTerminados) {
-				System.out.println("Evento "+evento.getIdEvento());
-				PreparedStatement ps = conn.getConnection().prepareStatement("SELECT COUNT(CALIFICACION), SUM(CALIFICACION) FROM TABLAPUNTUACIONESEVENTOS WHERE IDEVENTOFINALIZADO = ?");
-				ps.setString(1, evento.getIdEvento());
-				ResultSet rs = ps.executeQuery();
-				
-				if (rs.next()) {
-					vecesPuntuado = rs.getInt(1);
-					sumaVecesPuntuado = sumaVecesPuntuado + vecesPuntuado;
-				}
-				
-				if (vecesPuntuado > 0)
-					sumaPuntuaciones = sumaPuntuaciones + rs.getFloat(2);
-				
-				ps.close();
-				rs.close();
-				System.out.println("Evento "+evento.getIdEvento()+" puntuado "+vecesPuntuado+" veces. Suma acumulada de Puntuaciones en tus eventos: "+sumaPuntuaciones);
-			}
-			
-			if (sumaVecesPuntuado == 0)
-				puntuacionFinal = 4f;
-			else
-				puntuacionFinal = sumaPuntuaciones / sumaVecesPuntuado;
-		
-			System.out.println("Puntuación como Organizador >>>>> "+puntuacionFinal);
-			actualizarPuntuacionOrganizador(conn,correo,puntuacionFinal);
-			
-			conn.getConnection().setAutoCommit(false);
-			conn.getConnection().commit();
-			conn.getConnection().setAutoCommit(true);
-			conn.closeConnection();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return puntuacionFinal;
-	}
-	
-	
 	public boolean actualizarPuntuacionParticipante(Conexion conn, String correo, Float puntuacion) {
 		boolean actualizado = false;
 		
@@ -723,6 +672,161 @@ public Float calcularPuntuacionParticipante(String correo) {
 			e.printStackTrace();
 		}
 		return salt;
+	}
+	
+	public float calcularPuntuacionParticipante(String correo) {
+		
+		Conexion conn = null;
+		int vecesPuntuado = 0;
+		float sumaPuntuaciones = 0, puntuacionFinal = 0;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT COUNT(CALIFICACION), SUM(CALIFICACION) FROM TABLAPUNTUACIONESPARTICIPANTES WHERE EMAILUSUARIOPUNTUADO = ?");
+			ps.setString(1, correo);
+			ResultSet rs = ps.executeQuery();
+			
+			if (rs.next()) {
+				vecesPuntuado = rs.getInt(1);
+				sumaPuntuaciones = rs.getFloat(2);
+			}
+			
+			if (vecesPuntuado == 0)
+				puntuacionFinal = 4f;
+			else
+				puntuacionFinal = sumaPuntuaciones / vecesPuntuado;
+			
+			ps.close();
+			rs.close();
+		
+			System.out.println(correo+"-> Puntuación como Participante >>>>> "+puntuacionFinal);
+			actualizarPuntuacionParticipante(conn,correo,puntuacionFinal);
+			
+			conn.hacerCommit();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		return puntuacionFinal;
+	}
+	
+	
+	public float calcularPuntuacionOrganizador(String correo) {
+		
+		EventoDAO eventoDAO = new EventoDAO();
+		ArrayList<Evento> listaEventosTerminados = eventoDAO.obtenerEventosFinalizados(correo);
+		Conexion conn = null;
+		float sumaPuntuaciones = 0, puntuacionFinal = 0;
+		int vecesPuntuado = 0, sumaVecesPuntuado = 0;
+		
+		try {
+			conn = new Conexion();
+			for (Evento evento: listaEventosTerminados) {
+				System.out.println("Evento "+evento.getIdEvento());
+				PreparedStatement ps = conn.getConnection().prepareStatement("SELECT COUNT(CALIFICACION), SUM(CALIFICACION) FROM TABLAPUNTUACIONESEVENTOS WHERE IDEVENTOFINALIZADO = ?");
+				ps.setString(1, evento.getIdEvento());
+				ResultSet rs = ps.executeQuery();
+				
+				if (rs.next()) {
+					vecesPuntuado = rs.getInt(1);
+					sumaVecesPuntuado = sumaVecesPuntuado + vecesPuntuado;
+				}
+				
+				if (vecesPuntuado > 0)
+					sumaPuntuaciones = sumaPuntuaciones + rs.getFloat(2);
+				
+				ps.close();
+				rs.close();
+				System.out.println("Evento "+evento.getIdEvento()+" puntuado "+vecesPuntuado+" veces. Suma acumulada de Puntuaciones en tus eventos: "+sumaPuntuaciones);
+			}
+			
+			if (sumaVecesPuntuado == 0)
+				puntuacionFinal = 4f;
+			else
+				puntuacionFinal = sumaPuntuaciones / sumaVecesPuntuado;
+		
+			System.out.println(correo+"-> Puntuación como Organizador >>>>> "+puntuacionFinal);
+			actualizarPuntuacionOrganizador(conn,correo,puntuacionFinal);
+			
+			conn.hacerCommit();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		return puntuacionFinal;
+	}
+	
+	
+	public boolean actualizarPuntuacionParticipante(Conexion conn, String correo, float puntuacion) {
+		boolean actualizado = false;
+		
+		try {
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET REPUTACIONPARTICIPANTEUSUARIO = ? WHERE EMAILUSUARIO = ?");
+			ps.setFloat(1, puntuacion);
+			ps.setString(2, correo);
+			int numFilas = ps.executeUpdate();
+			
+			if (numFilas > 0)
+				actualizado = true;
+			
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	
+	public boolean actualizarPuntuacionOrganizador(Conexion conn, String correo, float puntuacion) {
+		boolean actualizado = false;
+		
+		try {
+			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET REPUTACIONORGANIZADORUSUARIO = ? WHERE EMAILUSUARIO = ?");
+			ps.setFloat(1, puntuacion);
+			ps.setString(2, correo);
+			int numFilas = ps.executeUpdate();
+			
+			if (numFilas > 0)
+				actualizado = true;
+			
+			ps.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return actualizado;
+	}
+	
+	
+	public boolean insertarPuntuacionParticipante(PuntuacionParticipante puntuacion) {
+		
+		boolean insertado = false;
+		Conexion conn = null;
+		
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("INSERT INTO TABLAPUNTUACIONESPARTICIPANTES VALUES(?,?,?,?)");
+			ps.setString(1, puntuacion.getEmailUsuarioEmisor());
+			ps.setString(2, puntuacion.getEmailUsuarioPuntuado());
+			ps.setString(3, puntuacion.getIdEventoFinalizado());
+			ps.setFloat(4, puntuacion.getCalificacion());
+			int filasAfectadas = ps.executeUpdate();
+			
+			if (filasAfectadas > 0)
+				insertado = true;
+			
+			ps.close();
+			
+			conn.hacerCommit();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		
+		calcularPuntuacionParticipante(puntuacion.getEmailUsuarioPuntuado());
+		
+		return insertado;
 	}
 	
 	public Date StringToDate(String fecha) {

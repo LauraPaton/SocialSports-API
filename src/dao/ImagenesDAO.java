@@ -1,7 +1,7 @@
 package dao;
 
-import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Blob;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,9 +33,9 @@ public class ImagenesDAO {
 		return subida;
 	}
 	
-	public InputStream downloadImage(String correo) {
+	public Blob downloadImage(String correo) {
 		
-		InputStream is = null;
+		Blob blob = null;
 		
 		try {
 			Conexion conn = new Conexion();
@@ -45,21 +45,16 @@ public class ImagenesDAO {
 			ResultSet rs = ps.executeQuery();
 			
 			if(rs.next()) {
-				is = rs.getBinaryStream(1);
+				blob = rs.getBlob(1);
 			}
 			
 			rs.close();
 			ps.close();
 			conn.closeConnection();
-			try {
-				is.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
 		
-		return is;
+		return blob;
 	}
 }

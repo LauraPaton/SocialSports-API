@@ -1,6 +1,5 @@
 package modelo;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -8,8 +7,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class Usuario {
 	
-	private String emailUsuario;       
-    private String passwordUsuario;     
+	private String emailUsuario; 
+	private String passwordUsuario;
     private String nombreUsuario;       
     private String apellidosUsuario;
     private String generoUsuario;       
@@ -30,19 +29,19 @@ public class Usuario {
         this.emailUsuario = emailUsuario;
     }
 
-    public String getPasswordUsuario() {
-        return passwordUsuario;
-    }
-
-    public void setPasswordUsuario(String paswordUsuario) {
-        this.passwordUsuario = paswordUsuario;
-    }
-
-    public String getNombreUsuario() {
+	public String getNombreUsuario() {
         return nombreUsuario;
     }
+	
+    public String getPasswordUsuario() {
+		return passwordUsuario;
+	}
 
-    public void setNombreUsuario(String nombreUsuario) {
+	public void setPasswordUsuario(String passwordUsuario) {
+		this.passwordUsuario = passwordUsuario;
+	}
+
+	public void setNombreUsuario(String nombreUsuario) {
     	if(nombreUsuario == null) this.nombreUsuario = "";
     	else this.nombreUsuario = nombreUsuario;
     }

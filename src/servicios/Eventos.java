@@ -18,6 +18,7 @@ import javax.ws.rs.core.Response.Status;
 
 import dao.EventoDAO;
 import modelo.Evento;
+import modelo.PuntuacionEvento;
 import seguridad.Secured;
 
 @Path("/eventos")
@@ -32,7 +33,6 @@ public class Eventos {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response crearEvento(Evento evento) {
 		eventoDAO = new EventoDAO();
-		System.out.println(evento.toString());
 		String id = eventoDAO.crearEvento(evento);
 		if(!id.equals("-1")) {
 			evento.setIdEvento(id);
@@ -165,7 +165,6 @@ public class Eventos {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/actualizar/reserva")
 	public Response actualizarReserva(@FormParam("idEvento") String idEvento, @FormParam("reserva") boolean reserva) {
-		System.out.println(idEvento + " " + reserva);
 		eventoDAO = new EventoDAO();
 		boolean actualizado = eventoDAO.actualizarReserva(idEvento, reserva);
 		if(actualizado) {
@@ -315,23 +314,46 @@ public class Eventos {
 	
 	@DELETE
 	@Path("/eliminarsolicitante/{idEvento}/{correo}")
-	public Response eliminarSolicitante(@PathParam("idEvento") String idEvento, @PathParam("correo") String correo) {
+	public Response bloquearSolicitud(@PathParam("idEvento") String idEvento, @PathParam("correo") String correo) {
 		System.out.println(idEvento + " " + correo);
 		eventoDAO = new EventoDAO();
 		eventoDAO.eliminarSolicitante(idEvento, correo);
 		return Response.status(Status.NO_CONTENT).build();
 	}
 	
+	@DELETE
+	@Path("/bloquearsolicitud/{idEvento}/{correo}")
+	public Response eliminarSolicitante(@PathParam("idEvento") String idEvento, @PathParam("correo") String correo) {
+		System.out.println(idEvento + " " + correo);
+		eventoDAO = new EventoDAO();
+		eventoDAO.bloquearSolicitud(idEvento, correo);
+		return Response.status(Status.NO_CONTENT).build();
+	}
+	
 	@Secured
 	@GET
-	@Path("/hasidopuntuado/{idevento}")
+	@Path("/hasidopuntuado/{idevento}/{email}")
 	@Produces({MediaType.TEXT_PLAIN})
-	public Response getHaSidoPuntuado(@PathParam("idevento") String idevento) {
+	public Response getHaSidoPuntuado(@PathParam("idevento") String idevento, @PathParam("email") String email) {
 		
 		eventoDAO = new EventoDAO();
-		boolean b = eventoDAO.haSidoPuntuado(idevento);
+		boolean b = eventoDAO.haSidoPuntuado(idevento,email);
 		return Response.status(Status.OK).entity(b).build();
 		
+	}
+	
+	@Secured
+	@POST
+	@Path("/insertarpuntuacion")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces({MediaType.TEXT_PLAIN})
+	public Response insertarPuntuacionEvento(PuntuacionEvento puntuacion) {
+		
+		eventoDAO = new EventoDAO();
+		if (eventoDAO.insertarPuntuacionEvento(puntuacion))
+			return Response.status(Status.CREATED).entity("Puntuacion insertada").build();
+		else
+			return Response.status(Status.BAD_REQUEST).build();
 	}
 
 }

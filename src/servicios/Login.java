@@ -24,8 +24,6 @@ public class Login {
 		
 		UsuarioDAO usuarioDAO = new UsuarioDAO();
 		
-		System.out.println(emailUsuario + ", " + passwordUsuario);
-		
 		if(usuarioDAO.loginUsuario(emailUsuario, passwordUsuario)) {
 			JwtProvider jwt = new JwtProvider();
 			String token = jwt.generarToken(emailUsuario);

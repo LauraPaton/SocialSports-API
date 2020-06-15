@@ -25,8 +25,6 @@ public class Registro {
 		
 		UsuarioDAO usuarioDAO = new UsuarioDAO();
 		Validaciones validaciones = new Validaciones();
-		
-		System.out.println(emailUsuario + ", " + passwordUsuario);
 
 		if(validaciones.validarCorreo(emailUsuario) && validaciones.validarContrasena(passwordUsuario)) {
 			

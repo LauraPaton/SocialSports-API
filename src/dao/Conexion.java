@@ -23,6 +23,18 @@ public class Conexion {
 		return this.connection;
 	}
 	
+	public void hacerCommit() {
+		try {
+			this.connection.setAutoCommit(false);
+			this.connection.commit();
+			this.connection.setAutoCommit(true);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	
 	public void closeConnection() {
 		if(connection != null){
 			try {
