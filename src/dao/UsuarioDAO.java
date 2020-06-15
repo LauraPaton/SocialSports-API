@@ -467,7 +467,7 @@ public boolean registroUsuario(String correo, String contrasena) {
 				if(fechaAlta != null) usuario.setFechaAltaUsuario(fechaAlta.toString());
 				usuario.setReputacionOrganizadorUsuario(rs.getFloat("REPUTACIONORGANIZADORUSUARIO"));
 				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
-				//usuario.setFotoPerfilUsuario(getFotoEnBase64(usuario.getEmailUsuario()));
+				usuario.setFotoPerfilUsuario(getFotoEnBase64(usuario.getEmailUsuario()));
 				
 			}
 			
@@ -541,7 +541,7 @@ public boolean registroUsuario(String correo, String contrasena) {
 				amigo.setGeneroUsuario(genero);
 				amigo.setReputacionOrganizadorUsuario(reputacionOrganizador);
 				amigo.setReputacionParticipanteUsuario(reputacionParticipante);
-				//amigo.setFotoPerfilUsuario(getFotoEnBase64(amigo.getEmailUsuario()));
+				amigo.setFotoPerfilUsuario(getFotoEnBase64(amigo.getEmailUsuario()));
 				if(date != null) amigo.setFechaNacimientoUsuario(date.toString());
 				
 				if(email != null) {
