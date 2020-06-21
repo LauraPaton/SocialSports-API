@@ -19,12 +19,15 @@ import javax.ws.rs.core.Response.Status;
 import dao.EventoDAO;
 import modelo.Evento;
 import modelo.PuntuacionEvento;
+import seguridad.JwtProvider;
 import seguridad.Secured;
+import seguridad.SecurityFilter;
 
 @Path("/eventos")
 public class Eventos {
 	
 	private EventoDAO eventoDAO;
+	private JwtProvider jwt;
 
 	@Secured
 	@POST
@@ -45,10 +48,12 @@ public class Eventos {
 	
 	@Secured
 	@GET
-	@Path("/pendientes/{correo}")
+	@Path("/pendientes")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response eventosPendientes(@PathParam("correo") String correo) {
+	public Response eventosPendientes() {
 		eventoDAO = new EventoDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		ArrayList<Evento> listaEventos = new ArrayList<>();
 		listaEventos = eventoDAO.obtenerEventosPendientes(correo);
 		return Response.status(Status.OK).entity(listaEventos).build();
@@ -56,10 +61,12 @@ public class Eventos {
 	
 	@Secured
 	@GET
-	@Path("/finalizados/{correo}")
+	@Path("/finalizados")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response eventosFinalizados(@PathParam("correo") String correo) {
+	public Response eventosFinalizados() {
 		eventoDAO = new EventoDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		ArrayList<Evento> listaEventos = new ArrayList<>();
 		listaEventos = eventoDAO.obtenerEventosFinalizados(correo);
 		return Response.status(Status.OK).entity(listaEventos).build();
@@ -71,14 +78,11 @@ public class Eventos {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response buscarEventos(@QueryParam("deporte") String deporte, @QueryParam("localidad") String localidad, @QueryParam("fecha") String fecha,
 			@QueryParam("hora") String hora, @QueryParam("reservado") boolean reservado, @QueryParam("reputacion") float reputacion) {
+
+		eventoDAO = new EventoDAO();
+		ArrayList<Evento> listaEventos = eventoDAO.buscarEventoFiltrado(deporte, localidad, eventoDAO.StringToDate(fecha), hora, reservado, reputacion);
+		return Response.status(Status.OK).entity(listaEventos).build();
 		
-		if(deporte == null && localidad == null && fecha == null && hora == null && reservado == false && reputacion == -1.0) {
-			return Response.status(Status.BAD_REQUEST).build();
-		}else {
-			eventoDAO = new EventoDAO();
-			ArrayList<Evento> listaEventos = eventoDAO.buscarEventoFiltrado(deporte, localidad, eventoDAO.StringToDate(fecha), hora, reservado, reputacion);
-			return Response.status(Status.OK).entity(listaEventos).build();
-		}
 		
 	}
 	
@@ -284,7 +288,7 @@ public class Eventos {
 	/******USUARIOS EVENTO******/
 	
 	@DELETE
-	@Path("/eliminarparticipante/{idEvento}/{correo}")
+	@Path("/eliminarparticipante/{idEvento}")
 	public Response eliminarParticipante(@PathParam("idEvento") String idEvento, @PathParam("correo") String correo) {
 		System.out.println(idEvento + " " + correo);
 		eventoDAO = new EventoDAO();

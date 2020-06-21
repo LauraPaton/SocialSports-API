@@ -121,118 +121,43 @@ public boolean registroUsuario(String correo, String contrasena) {
 		return existe;
 	}
 	
-	public boolean actualizarNombre(String correo, String nombre) {
+	public void actualizarDatos(String correo, String nombre, String apellidos, String direccion, String genero, Date fechaNacimiento) {
+		String sql = "UPDATE TABLAUSUARIOS SET";
+		int n = 0;
+		if(nombre != null) {
+			sql += " NOMBREUSUARIO = '" + nombre + "'";
+			n++;
+		}
+		if(apellidos != null) {
+			if(n > 0) sql += ",";
+			sql += " APELLIDOSUSUARIO = '" + apellidos + "'";
+			n++;
+		}
+		if(direccion != null) {
+			if(n > 0) sql += ",";
+			sql += " DIRECCIONUSUARIO = '" + direccion + "'";
+			n++;
+		}
+		if(genero != null) {
+			if(n > 0) sql += ",";
+			sql += " GENEROUSUARIO = '" + genero + "'";
+			n++;
+		}
+		if(fechaNacimiento != null){
+			if(n > 0) sql += ",";
+			sql += " FECHANACIMIENTOUSUARIO = '" + fechaNacimiento + "'";
+			n++;
+		}
 		
-		Conexion conn = null;
-		boolean actualizado = false;
+		sql += " WHERE EMAILUSUARIO = '" + correo + "'";
 		
 		try {
-			conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET NOMBREUSUARIO = ? WHERE EMAILUSUARIO = ?");
-			ps.setString(1, nombre);
-			ps.setString(2, correo);
-			int n = ps.executeUpdate();
-			
-			if(n > 0) actualizado = true;
-			
-			ps.close();
-			conn.closeConnection();
+			Conexion conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement(sql);
+			ps.executeUpdate();
 		} catch (ClassNotFoundException | SQLException e) {
 			e.printStackTrace();
 		}
-		
-		return actualizado;
-	}
-	
-	public boolean actualizarApellidos(String correo, String apellidos) {
-		
-		Conexion conn = null;
-		boolean actualizado = false;
-		try {
-			conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET APELLIDOSUSUARIO = ? WHERE EMAILUSUARIO = ?");
-			ps.setString(1, apellidos);
-			ps.setString(2, correo);
-			int n = ps.executeUpdate();
-			
-			if(n > 0) actualizado = true;
-			
-			ps.close();
-			conn.closeConnection();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return actualizado;
-	}
-	
-	public boolean actualizarDireccion(String correo, String direccion) {
-		
-		Conexion conn = null;
-		boolean actualizado = false;
-		
-		try {
-			conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET DIRECCIONUSUARIO = ? WHERE EMAILUSUARIO = ?");
-			ps.setString(1, direccion);
-			ps.setString(2, correo);
-			int n = ps.executeUpdate();
-			
-			if(n > 0) actualizado = true;
-			
-			ps.close();
-			conn.closeConnection();
-			
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return actualizado;
-	}
-	
-	public boolean actualizarGenero(String correo, String genero) {
-		
-		Conexion conn = null;
-		boolean actualizado = false;
-		
-		try {
-			conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET GENEROUSUARIO = ? WHERE EMAILUSUARIO = ?");
-			ps.setString(1, genero);
-			ps.setString(2, correo);
-			int n = ps.executeUpdate();
-			
-			if(n > 0) actualizado = true;
-			
-			ps.close();
-			conn.closeConnection();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return actualizado;
-	}
-	
-	public boolean actualizarFechaNacimiento(String correo, Date fecha) {
-		
-		Conexion conn = null;
-		boolean actualizado = false;
-		
-		try {
-			conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("UPDATE TABLAUSUARIOS SET FECHANACIMIENTOUSUARIO = ? WHERE EMAILUSUARIO = ?");
-			ps.setDate(1, new java.sql.Date(fecha.getTime()));
-			ps.setString(2, correo);
-			int n = ps.executeUpdate();
-			
-			if(n > 0) actualizado = true;
-			
-			ps.close();
-			conn.closeConnection();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return actualizado;
 	}
 	
 	public boolean actualizarPassword(String correo, String password) {
@@ -469,7 +394,6 @@ public boolean registroUsuario(String correo, String contrasena) {
 				usuario.setReputacionOrganizadorUsuario(rs.getFloat("REPUTACIONORGANIZADORUSUARIO"));
 				usuario.setReputacionParticipanteUsuario(rs.getFloat("REPUTACIONPARTICIPANTEUSUARIO"));
 				usuario.setFotoPerfilUsuario(getFotoEnBase64(correo));
-				
 			}
 			
 			rs.close();
@@ -482,24 +406,7 @@ public boolean registroUsuario(String correo, String contrasena) {
 		return usuario;
 	}
 	
-	public static String getFotoEnBase64(String name) {
-		String encoded = "";
-		try {
-			File fileJPG = new File(Imagenes.path + name.replace(".", "") + ".jpg");
-			File filePNG = new File(Imagenes.path + name.replace(".", "") + ".png");
-			
-			if(fileJPG.exists()) {
-				byte[] fileContent = FileUtils.readFileToByteArray(fileJPG);
-				encoded = Base64.getEncoder().encodeToString(fileContent);
-			}else if (filePNG.exists()) {
-				byte[] fileContent = FileUtils.readFileToByteArray(filePNG);
-				encoded = Base64.getEncoder().encodeToString(fileContent);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return encoded;
-	}
+
 	
 	public ArrayList<Usuario> listaAmigos(String correo) {
 		
@@ -649,29 +556,6 @@ public boolean registroUsuario(String correo, String contrasena) {
 		}
 		
 		return actualizado;
-	}
-	
-	private String getSalt(String correo) {
-		
-		Conexion conn = null;
-		String salt = "";
-	
-		try {
-			conn = new Conexion();
-			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT USUARIOSALT FROM TABLAUSUARIOS WHERE EMAILUSUARIO = ?");
-			ps.setString(1, correo);
-			ResultSet rs = ps.executeQuery();
-			if(rs.next()) {
-				salt = rs.getString(1);
-			}
-			
-			rs.close();
-			ps.close();
-			conn.closeConnection();
-		} catch (ClassNotFoundException | SQLException e) {
-			e.printStackTrace();
-		}
-		return salt;
 	}
 	
 	public float calcularPuntuacionParticipante(String correo) {
@@ -829,6 +713,25 @@ public boolean registroUsuario(String correo, String contrasena) {
 		return insertado;
 	}
 	
+	public static String getFotoEnBase64(String name) {
+		String encoded = "";
+		try {
+			File fileJPG = new File(Imagenes.path + name.replace(".", "") + ".jpg");
+			File filePNG = new File(Imagenes.path + name.replace(".", "") + ".png");
+			
+			if(fileJPG.exists()) {
+				byte[] fileContent = FileUtils.readFileToByteArray(fileJPG);
+				encoded = Base64.getEncoder().encodeToString(fileContent);
+			}else if (filePNG.exists()) {
+				byte[] fileContent = FileUtils.readFileToByteArray(filePNG);
+				encoded = Base64.getEncoder().encodeToString(fileContent);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return encoded;
+	}
+	
 	public Date StringToDate(String fecha) {
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
         if (fecha!=null && !fecha.isEmpty()) {
@@ -842,5 +745,28 @@ public boolean registroUsuario(String correo, String contrasena) {
         }
         return null;
     }
+	
+	private String getSalt(String correo) {
+		
+		Conexion conn = null;
+		String salt = "";
+	
+		try {
+			conn = new Conexion();
+			PreparedStatement ps = conn.getConnection().prepareStatement("SELECT USUARIOSALT FROM TABLAUSUARIOS WHERE EMAILUSUARIO = ?");
+			ps.setString(1, correo);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				salt = rs.getString(1);
+			}
+			
+			rs.close();
+			ps.close();
+			conn.closeConnection();
+		} catch (ClassNotFoundException | SQLException e) {
+			e.printStackTrace();
+		}
+		return salt;
+	}
 
 }

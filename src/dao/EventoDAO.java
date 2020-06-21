@@ -779,16 +779,16 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		
 		String SQL = "select idevento from tablaeventos where terminado = 0";
 		
-		if(deporte != null && !deporte.equals("")) {
+		if(deporte != null) {
 			SQL += " and deporte = '" + deporte + "'";
 		}
-		if(localidad != null && !localidad.equals("")) {
+		if(localidad != null) {
 			SQL += " and localidad = '" + localidad + "'";
 		}
 		if(fecha != null) {
 			SQL += " and fechaevento = '" + fecha + "'";
 		}
-		if(hora != null && !hora.equals("")) {
+		if(hora != null) {
 			SQL += " and horaevento = '" + hora + "'"; 
 		}
 		if(reservado) {
@@ -822,7 +822,7 @@ ArrayList<Usuario> listaParticipantes = new ArrayList<Usuario>();
 		return listaEventos;
 	}
 	
-public boolean haSidoPuntuado(String idEvento, String email) {
+	public boolean haSidoPuntuado(String idEvento, String email) {
 		
 		boolean rated = false;
 		Conexion conn = null;

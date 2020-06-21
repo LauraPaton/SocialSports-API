@@ -1,6 +1,5 @@
 package servicios;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import javax.ws.rs.Consumes;
@@ -15,20 +14,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-
-import dao.ImagenesDAO;
 import dao.UsuarioDAO;
 import modelo.PuntuacionParticipante;
 import modelo.Usuario;
+import seguridad.JwtProvider;
 import seguridad.Secured;
+import seguridad.SecurityFilter;
 
 @Path("/perfil")
 public class Perfil {
 	
 	private UsuarioDAO usuarioDAO;
+	private JwtProvider jwt;
 	
 	/***********DATOS USUARIO***********/
 	
@@ -36,85 +33,22 @@ public class Perfil {
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Produces(MediaType.TEXT_PLAIN)
-	@Path("/nombre")
-	public Response actualizarNombre(@FormParam("correo") String correo, @FormParam("nombre") String nombre) {
-		usuarioDAO = new UsuarioDAO();
+	@Path("/actualizardatos")
+	public Response actualizarDatos(@FormParam("nombre") String nombre, @FormParam("apellidos") String apellidos, @FormParam("direccion") String direccion,
+			@FormParam("genero") String genero, @FormParam("fechanacimiento") String fechaNacimiento) {
 		
-		boolean actualizado = usuarioDAO.actualizarNombre(correo, nombre);
-		if(actualizado) {
-			return Response.status(Status.OK).entity(nombre).build(); 
-		}else {
-			return Response.status(Status.NOT_FOUND).build();
-		}
-	}
-	
-	@Secured
-	@PUT
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.TEXT_PLAIN)
-	@Path("/apellidos")
-	public Response actualizarApellidos(@FormParam("correo") String correo, @FormParam("apellidos") String apellidos) {
-		
-		usuarioDAO = new UsuarioDAO();
-	
-		boolean actualizado = usuarioDAO.actualizarApellidos(correo, apellidos);
-		if(actualizado) {
-			return Response.status(Status.OK).entity(apellidos).build(); 
-		}else {
-			return Response.status(Status.NOT_FOUND).build();
+		if(nombre == null && apellidos == null && direccion == null && genero == null && fechaNacimiento == null) {
+			return Response.status(Status.BAD_REQUEST).build();
+		}else if(nombre.equals("") && apellidos.equals("") && direccion.equals("") && genero.equals("") && fechaNacimiento == null) {
+			return Response.status(Status.BAD_REQUEST).build();
 		}
 		
-	}
-	
-	@Secured
-	@PUT
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.TEXT_PLAIN)
-	@Path("/direccion")
-	public Response actualizarDireccion(@FormParam("correo") String correo, @FormParam("direccion") String direccion) {
 		usuarioDAO = new UsuarioDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		
-		boolean actualizado = usuarioDAO.actualizarDireccion(correo, direccion);
-		if(actualizado) {
-			return Response.status(Status.OK).entity(direccion).build(); 
-		}else {
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		
-	}
-	
-	@Secured
-	@PUT
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Produces(MediaType.TEXT_PLAIN)
-	@Path("/genero")
-	public Response actualizarGenero(@FormParam("correo") String correo, @FormParam("genero") String genero) {
-		
-		usuarioDAO = new UsuarioDAO();
-	
-		boolean actualizado = usuarioDAO.actualizarGenero(correo, genero);
-		if(actualizado) {
-			return Response.status(Status.OK).entity(genero).build(); 
-		}else {
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		
-	}
-	
-	@Secured
-	@PUT
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Path("/nacimiento")
-	public Response actualizarFechaNacimiento(@FormParam("correo") String correo, @FormParam("fecha") String fecha) {
-		
-		usuarioDAO = new UsuarioDAO();
-	
-		boolean actualizado = usuarioDAO.actualizarFechaNacimiento(correo, usuarioDAO.StringToDate(fecha));
-		if(actualizado) {
-			return Response.status(Status.OK).entity(fecha).build(); 
-		}else {
-			return Response.status(Status.NOT_FOUND).build();
-		}
+		usuarioDAO.actualizarDatos(correo, nombre, apellidos, direccion, genero, usuarioDAO.StringToDate(fechaNacimiento));
+		return Response.status(Status.NO_CONTENT).build();
 		
 	}
 	
@@ -122,10 +56,12 @@ public class Perfil {
 	@PUT
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Path("/password")
-	public Response actualizarPassword(@FormParam("correo") String correo, @FormParam("password") String password) {
+	public Response actualizarPassword(@FormParam("password") String password) {
 		
 		usuarioDAO = new UsuarioDAO();
-	
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
+		
 		boolean actualizado = usuarioDAO.actualizarPassword(correo, password);
 		if(actualizado) {
 			return Response.status(Status.OK).entity(password).build(); 
@@ -138,10 +74,12 @@ public class Perfil {
 	@Secured
 	@DELETE
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Path("/borrarusuario/{correo}")
-	public Response borrarUsuario(@PathParam("correo") String correo) {
+	@Path("/borrarusuario")
+	public Response borrarUsuario() {
 		
 		usuarioDAO = new UsuarioDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		
 		boolean borrado = usuarioDAO.borrarUsuario(correo);
 		if(borrado) {
@@ -156,11 +94,13 @@ public class Perfil {
 	
 	@Secured
 	@GET
-	@Path("/amigos/{correo}")
+	@Path("/amigos")
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response listaAmigos(@PathParam("correo") String correo) {
+	public Response listaAmigos() {
 		
 		usuarioDAO = new UsuarioDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		ArrayList<Usuario> listaAmigos = usuarioDAO.listaAmigos(correo);
 		
 		return Response.status(Status.OK).entity(listaAmigos).build();
@@ -169,11 +109,13 @@ public class Perfil {
 	
 	@Secured
 	@GET
-	@Path("/bloqueados/{correo}")
+	@Path("/bloqueados")
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response listaBloqueados(@PathParam("correo") String correo) {
+	public Response listaBloqueados() {
 		
 		usuarioDAO = new UsuarioDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		ArrayList<Usuario> listaBloqueados = usuarioDAO.listaBloqueados(correo);
 		
 		return Response.status(Status.OK).entity(listaBloqueados).build();
@@ -182,9 +124,11 @@ public class Perfil {
 	
 	@Secured
 	@POST
-	@Path("/amigos/agregar/{correo}/{correoAmigo}")
-	public Response agregarAmigo(@PathParam("correo") String correo, @PathParam("correoAmigo") String correoAmigo) {
+	@Path("/amigos/agregar/{correoAmigo}")
+	public Response agregarAmigo(@PathParam("correoAmigo") String correoAmigo) {
 		usuarioDAO = new UsuarioDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		
 		if(usuarioDAO.agregarAmigo(correo, correoAmigo)) {
 			return Response.status(Status.NO_CONTENT).build();
@@ -195,12 +139,12 @@ public class Perfil {
 	
 	@Secured
 	@DELETE
-	@Path("/amigos/eliminar/{correo}/{correoAmigo}")
-	public Response eliminarAmigo(@PathParam("correo") String correo, @PathParam("correoAmigo") String correoAmigo) {
+	@Path("/amigos/eliminar/{correoAmigo}")
+	public Response eliminarAmigo(@PathParam("correoAmigo") String correoAmigo) {
 		
 		usuarioDAO = new UsuarioDAO();
-		
-		System.out.println(correo + " " + correoAmigo);
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		
 		if(usuarioDAO.borrarAmigo(correo, correoAmigo)) {
 			return Response.status(Status.NO_CONTENT).build();
@@ -211,9 +155,11 @@ public class Perfil {
 	
 	@Secured
 	@POST
-	@Path("/bloquearusuario/{correo}/{correoBloqueado}")
-	public Response bloquearUsuario(@PathParam("correo") String correo, @PathParam("correoBloqueado") String correoBloqueado) {
+	@Path("/bloquearusuario/{correoBloqueado}")
+	public Response bloquearUsuario(@PathParam("correoBloqueado") String correoBloqueado) {
 		usuarioDAO = new UsuarioDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		
 		if(usuarioDAO.bloquearUsuario(correo, correoBloqueado)) {
 			return Response.status(Status.NO_CONTENT).build();
@@ -224,9 +170,11 @@ public class Perfil {
 	
 	@Secured
 	@DELETE
-	@Path("/quitarbloqueo/{correo}/{correoBloqueado}")
-	public Response quitarBloqueo(@PathParam("correo") String correo, @PathParam("correoBloqueado") String correoBloqueado) {
+	@Path("/quitarbloqueo/{correoBloqueado}")
+	public Response quitarBloqueo(@PathParam("correoBloqueado") String correoBloqueado) {
 		usuarioDAO = new UsuarioDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
 		
 		if(usuarioDAO.quitarBloqueo(correo, correoBloqueado)) {
 			return Response.status(Status.NO_CONTENT).build();
@@ -235,50 +183,32 @@ public class Perfil {
 		}
 	}
 	
-	/***********IMAGENES***********/
-	
-	//@Secured
-	@PUT
-	@Path("/imagenes/subir/{correo}")	
-	@Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadFile(  
-            @FormDataParam("file") InputStream uploadedInputStream,  
-            @FormDataParam("file") FormDataContentDisposition fileDetail, @PathParam("correo") String correo) {
-
-		System.out.println(fileDetail.getFileName());
-		ImagenesDAO imagenesDAO = new ImagenesDAO();
-		boolean subida = imagenesDAO.uploadImage(uploadedInputStream, correo);
-
-		if(subida){
-				return Response
-							.status(Status.OK)
-							.build();
-		}
-		
-		return Response.status(Status.CONFLICT).build();
-
-	}
-	
 	/************REPUTACION************/
 	
 	@Secured
 	@GET
-	@Path("/puntuacionparticipante/{correo}")
+	@Path("/puntuacionparticipante")
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response getReputacionParticipante(@PathParam("correo") String correo) {
+	public Response getReputacionParticipante() {
 		
 		usuarioDAO = new UsuarioDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
+		
 		return Response.status(Status.OK).entity(usuarioDAO.calcularPuntuacionParticipante(correo)).build();
 		
 	}
 	
 	@Secured
 	@GET
-	@Path("/puntuacionorganizador/{correo}")
+	@Path("/puntuacionorganizador")
 	@Produces({MediaType.APPLICATION_JSON})
-	public Response getReputacionOrganizador(@PathParam("correo") String correo) {
+	public Response getReputacionOrganizador() {
 		
 		usuarioDAO = new UsuarioDAO();
+		jwt = new JwtProvider();
+		String correo = jwt.getCorreo(SecurityFilter.token);
+		
 		return Response.status(Status.OK).entity(usuarioDAO.calcularPuntuacionOrganizador(correo)).build();
 		
 	}
