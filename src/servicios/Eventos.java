@@ -6,12 +6,14 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -21,7 +23,6 @@ import modelo.Evento;
 import modelo.PuntuacionEvento;
 import seguridad.JwtProvider;
 import seguridad.Secured;
-import seguridad.SecurityFilter;
 
 @Path("/eventos")
 public class Eventos {
@@ -50,10 +51,10 @@ public class Eventos {
 	@GET
 	@Path("/pendientes")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response eventosPendientes() {
+	public Response eventosPendientes(@HeaderParam(HttpHeaders.AUTHORIZATION) String token) {
 		eventoDAO = new EventoDAO();
 		jwt = new JwtProvider();
-		String correo = jwt.getCorreo(SecurityFilter.token);
+		String correo = jwt.getCorreo(token.substring("Bearer".length()).trim());
 		ArrayList<Evento> listaEventos = new ArrayList<>();
 		listaEventos = eventoDAO.obtenerEventosPendientes(correo);
 		return Response.status(Status.OK).entity(listaEventos).build();
@@ -63,10 +64,10 @@ public class Eventos {
 	@GET
 	@Path("/finalizados")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response eventosFinalizados() {
+	public Response eventosFinalizados(@HeaderParam(HttpHeaders.AUTHORIZATION) String token) {
 		eventoDAO = new EventoDAO();
 		jwt = new JwtProvider();
-		String correo = jwt.getCorreo(SecurityFilter.token);
+		String correo = jwt.getCorreo(token.substring("Bearer".length()).trim());
 		ArrayList<Evento> listaEventos = new ArrayList<>();
 		listaEventos = eventoDAO.obtenerEventosFinalizados(correo);
 		return Response.status(Status.OK).entity(listaEventos).build();

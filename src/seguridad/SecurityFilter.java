@@ -7,8 +7,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
 import io.jsonwebtoken.io.IOException;
-import seguridad.JwtProvider;
-import seguridad.Secured;
 
 import javax.annotation.Priority;
 import javax.ws.rs.Priorities;
@@ -19,7 +17,6 @@ import javax.ws.rs.Priorities;
 public class SecurityFilter implements ContainerRequestFilter {
 	
     private static final String AUTHENTICATION_SCHEME = "Bearer";
-    public static String token;
     
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -32,7 +29,7 @@ public class SecurityFilter implements ContainerRequestFilter {
             return;
         }
         
-    	token = authorizationHeader.substring(AUTHENTICATION_SCHEME.length()).trim();
+    	String token = authorizationHeader.substring(AUTHENTICATION_SCHEME.length()).trim();
     	
     	JwtProvider jwtProvider = new JwtProvider();
         if(!jwtProvider.validateToken(token)) {
